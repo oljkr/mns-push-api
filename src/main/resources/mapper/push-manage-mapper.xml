@@ -35,6 +35,14 @@
         </if>
     </select>
 
+    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
+        SELECT COUNT(*)
+        FROM TBFF_PUSH_DEVICE
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        AND APP_CODE = #{appCode}
+    </select>
+
     <select id="getRegApp" resultType="String">
         SELECT APP_CODE
         FROM TBFF_PUSH_APP
@@ -43,9 +51,15 @@
 
     <insert id="insertPushDevice" parameterType="pushDeviceVO">
         INSERT INTO TBFF_PUSH_DEVICE
-        (DEVICE_TYPE, DEVICE_ID, CUST_ID, APP_CODE)
+        (DEVICE_TYPE, DEVICE_ID, APP_CODE
+        <if test="custId != null">
+            , CUST_ID
+        </if>)
         VALUES
-        (#{deviceType}, #{deviceId}, #{custId}, #{appCode})
+        (#{deviceType}, #{deviceId}, #{appCode}
+        <if test="custId != null">
+            , #{custId}
+        </if>)
     </insert>
 
     <delete id="deletePushDevice" parameterType="pushDeviceVO">

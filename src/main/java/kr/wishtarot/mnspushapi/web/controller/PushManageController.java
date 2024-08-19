@@ -24,16 +24,16 @@ public class PushManageController {
     /**
      * 디바이스가 등록되어 있는지 확인하는 요청을 처리합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
-     * @param appCode (선택적) 앱 코드 (패키지 이름)
+     * @param appCode 앱 코드 (패키지 이름)
      * @return 디바이스가 등록되어 있으면 'Y', 그렇지 않으면 'N'을 반환합니다.
      *         오류가 발생할 경우 HTTP 500 상태와 에러 메시지를 반환합니다.
      */
     @GetMapping("/device/registration-status")
     public ResponseEntity<String> isDeviceRegistered(@RequestParam String deviceType,
                                                      @RequestParam String deviceId,
-                                                     @RequestParam(required = false) String appCode) {
+                                                     @RequestParam String appCode) {
         try {
             return ResponseEntity.ok(pushManageService.isDeviceRegistered(deviceType, deviceId, appCode));
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public class PushManageController {
      * 디바이스를 등록하거나 삭제하는 요청을 처리합니다.
      *
      * @param mode 'reg' 등록, 'del' 삭제
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID (Private Push의 경우는 회원 ID)
      * @param appCode 앱 코드 (패키지 이름)
      * @param custId 고객 ID (등록 시 필수)
@@ -70,7 +70,7 @@ public class PushManageController {
      * @param mode 동작 모드 ('reg': 등록, 'del': 삭제)
      * @param appCode 앱 코드 (패키지 이름)
      * @param notiCode 알림 코드
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID (Private Push의 경우는 회원 ID)
      * @return HTTP 응답 상태와 결과 메시지
      */
@@ -90,7 +90,7 @@ public class PushManageController {
     /**
      * 전송된 Push 알림 이력 목록을 조회합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
      * @param appCode (선택적) 앱 코드 (패키지 이름)
      * @param receiveSuccesYn (선택적) 전송 성공 여부 ('Y' or 'N')
@@ -113,7 +113,7 @@ public class PushManageController {
     /**
      * 단말기로부터 Feedback이 되지 않은 Push 알림 이력(재전송 대상) 목록을 조회합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param appCode (선택적) 앱 코드 (패키지 이름)
      * @param notiCode (선택적) 알림 코드
      * @param custId (선택적) 회원 ID
@@ -136,9 +136,9 @@ public class PushManageController {
     }
 
     /**
-     * 앱에 등록된 Push 알림 목록을 조회합니다.
+     * 사용자의 기기와 앱으로 등록된 Push 알림 목록을 조회합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param appCode 앱 코드 (패키지 이름)
      * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
      * @return Push 알림 목록을 JSON 형식으로 반환합니다.
@@ -158,7 +158,7 @@ public class PushManageController {
      * 회원ID에 등록된 디바이스ID 목록을 조회합니다.
      *
      * @param appCode 앱 코드 (패키지 이름)
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param custId 회원 ID
      * @return 디바이스 ID 목록을 JSON 형식으로 반환합니다.
      */
@@ -176,7 +176,7 @@ public class PushManageController {
     /**
      * 특정 알림 코드가 등록된 회원ID 목록을 조회합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param appCode 앱 코드 (패키지 이름)
      * @param notiCode 알림 코드
      * @return 회원 ID 목록을 JSON 형식으로 반환합니다.
@@ -196,7 +196,7 @@ public class PushManageController {
      * 디바이스 ID를 수정합니다.
      *
      * @param appCode 앱 코드 (패키지 이름)
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
+     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param oldDeviceId 기존 디바이스 ID
      * @param newDeviceId 변경할 디바이스 ID
      * @return 성공 시 [SUCCESS], 실패 시 [FAIL]을 반환합니다.

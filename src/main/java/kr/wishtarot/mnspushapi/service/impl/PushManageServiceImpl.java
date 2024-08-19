@@ -28,10 +28,13 @@ public class PushManageServiceImpl implements PushManageService {
 
     @Override
     public String isDeviceRegistered(String deviceType, String deviceId, String appCode) throws Exception {
-        appCode = normalize(appCode);
+        int count = countPushDeviceByCriteria(deviceType, deviceId, appCode);
+        return (count > 0) ? "Y" : "N";
+    }
 
-        String custId = getCustIdFromPushDevice(deviceType, deviceId, appCode);
-        return (custId != null) ? "Y" : "N";
+    private int countPushDeviceByCriteria(String deviceType, String deviceId, String appCode) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null);
+        return pushManageDAO.countPushDeviceByCriteria(pushDevice);
     }
 
     private String getCustIdFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
@@ -54,11 +57,6 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     private String handleDeviceRegistration(PushDevice pushDevice) throws Exception {
-        // custId가 없으면 등록 실패
-        if (pushDevice.getCustId().isEmpty()) {
-            return "[FAIL] custId is required for registration";
-        }
-
         String regApp = pushManageDAO.getRegApp(pushDevice.getAppCode());
         // 등록된 앱이 아니면 등록 실패
         if (regApp != null) {
@@ -82,14 +80,15 @@ public class PushManageServiceImpl implements PushManageService {
     @Override
     public String managePushNotification(String mode, String appCode, String notiCode, String deviceType, String deviceId) throws Exception {
         PushDeviceReg pushDeviceReg = createPushDeviceReg(appCode, notiCode, deviceType, deviceId);
-        String custId = getCustIdFromPushDevice(deviceType, deviceId, appCode);
 
-        if (custId == null) {
-            return "[FAIL] Customer ID not found";
+        int count = countPushDeviceByCriteria(deviceType, deviceId, appCode);
+        if(count == 0) {
+            return "[FAIL] Device not registered";
         }
 
         int pushDeviceResult = 0;
         if ("reg".equalsIgnoreCase(mode)) {
+            // 해당하는 알림이 등록되어 있는지 확인
             String regPushNoti = getRegPushNoti(appCode, notiCode);
             if (regPushNoti != null) {
                 pushDeviceResult = pushManageDAO.insertPushDeviceReg(pushDeviceReg);

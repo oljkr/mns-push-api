@@ -26,6 +26,10 @@ public class PushManageDAO {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getCustIdFromPushDevice", pushDeviceVO);
     }
 
+    public int countPushDeviceByCriteria(PushDevice pushDeviceVO) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.countPushDeviceByCriteria", pushDeviceVO);
+    }
+
     public String getRegApp(String appCode) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getRegApp", appCode);
     }
