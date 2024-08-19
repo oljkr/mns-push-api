@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.wishtarot.mnspushapi.mapper.PushManageMapper">
+
+    <resultMap type="pushHistVO" id="pushHistMap">
+        <result property="histSeq" column="HIST_SEQ"/>
+        <result property="custId" column="CUST_ID"/>
+        <result property="message" column="MESSAGE"/>
+        <result property="sendDt" column="SEND_DT"/>
+        <result property="appCode" column="APP_CODE"/>
+        <result property="notiCode" column="NOTI_CODE"/>
+        <result property="receiveSuccesYn" column="RECEIVE_SUCCES_YN"/>
+    </resultMap>
+
+    <resultMap type="pushNotiInfoVO" id="pushNotiInfoMap">
+        <result property="notiCode" column="NOTI_CODE"/>
+        <result property="notiNm" column="NOTI_NM"/>
+        <result property="isSetting" column="IS_SETTING"/>
+    </resultMap>
+
+    <resultMap type="pushDeviceVO" id="pushDeviceMap">
+        <result property="deviceType" column="DEVICE_TYPE"/>
+        <result property="deviceId" column="DEVICE_ID"/>
+        <result property="custId" column="CUST_ID"/>
+        <result property="appCode" column="APP_CODE"/>
+    </resultMap>
+
+    <select id="getCustIdFromPushDevice" parameterType="pushDeviceVO" resultType="String">
+        SELECT CUST_ID
+        FROM TBFF_PUSH_DEVICE
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        <if test="appCode != null and appCode != ''">
+            AND APP_CODE = #{appCode}
+        </if>
+    </select>
+
+    <select id="getRegApp" resultType="String">
+        SELECT APP_CODE
+        FROM TBFF_PUSH_APP
+        WHERE APP_CODE = #{appCode}
+    </select>
+
+    <insert id="insertPushDevice" parameterType="pushDeviceVO">
+        INSERT INTO TBFF_PUSH_DEVICE
+        (DEVICE_TYPE, DEVICE_ID, CUST_ID, APP_CODE)
+        VALUES
+        (#{deviceType}, #{deviceId}, #{custId}, #{appCode})
+    </insert>
+
+    <delete id="deletePushDevice" parameterType="pushDeviceVO">
+        DELETE
+        FROM TBFF_PUSH_DEVICE
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        AND APP_CODE = #{appCode}
+    </delete>
+
+    <delete id="deleteAllPushDeviceReg" parameterType="pushDeviceVO">
+        DELETE
+        FROM TBFF_PUSH_DEVICEREG
+        WHERE APP_CODE = #{appCode}
+        AND DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+    </delete>
+
+    <select id="getRegPushNoti" parameterType="pushNotiInfoVO" resultType="String">
+        SELECT NOTI_CODE
+        FROM TBFF_PUSH_NOTIINFO
+        WHERE APP_CODE = #{appCode}
+        AND NOTI_CODE = #{notiCode}
+    </select>
+
+    <insert id="insertPushDeviceReg" parameterType="pushDeviceRegVO">
+        INSERT INTO TBFF_PUSH_DEVICEREG
+        (APP_CODE, NOTI_CODE, DEVICE_TYPE, DEVICE_ID, REG_DT)
+        VALUES
+        (#{appCode}, #{notiCode}, #{deviceType}, #{deviceId}, NOW())
+    </insert>
+
+    <delete id="deletePushDeviceReg" parameterType="pushDeviceRegVO">
+        DELETE
+        FROM TBFF_PUSH_DEVICEREG
+        WHERE APP_CODE = #{appCode}
+        AND NOTI_CODE = #{notiCode}
+        AND DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+    </delete>
+
+    <select id="getPushHistList" parameterType="pushHistVO" resultMap="pushHistMap">
+        SELECT HIST_SEQ, CUST_ID,
+        MESSAGE, DATE_FORMAT(SEND_DT, '%Y%m%d%H%i%s') AS SEND_DT,
+        APP_CODE, NOTI_CODE,
+        COALESCE(RECEIVE_SUCCES_YN, 'N') AS RECEIVE_SUCCES_YN
+        FROM TBFF_PUSH_HIST
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        AND SEND_SUCCES_YN = 'Y'
+        <if test="appCode != null and appCode != ''">
+            AND APP_CODE = #{appCode}
+        </if>
+        <if test="receiveSuccesYn == 'Y'">
+            AND RECEIVE_SUCCES_YN = 'Y'
+        </if>
+        <if test="receiveSuccesYn == 'N'">
+            AND RECEIVE_SUCCES_YN IS NULL
+        </if>
+        <if test="qryStartDt != null and qryStartDt != ''">
+            AND DATE_FORMAT(SEND_DT, '%Y%m%d') <![CDATA[>=]]> #{qryStartDt}
+        </if>
+        ORDER BY SEND_DT DESC
+    </select>
+
+    <select id="getTargetResendList" parameterType="pushHistVO" resultMap="pushHistMap">
+        SELECT HIST_SEQ, CUST_ID,
+        MESSAGE, DATE_FORMAT(SEND_DT, '%Y%m%d%H%i%s') AS SEND_DT,
+        APP_CODE, NOTI_CODE,
+        COALESCE(RECEIVE_SUCCES_YN, 'N') AS RECEIVE_SUCCES_YN
+        FROM TBFF_PUSH_HIST
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND RECEIVE_SUCCES_YN IS NULL
+        <if test="appCode != null and appCode != ''">
+            AND APP_CODE = #{appCode}
+        </if>
+        <if test="notiCode != null and notiCode != ''">
+            AND NOTI_CODE = #{notiCode}
+        </if>
+        <if test="custId != null and custId != ''">
+            AND CUST_ID = #{custId}
+        </if>
+        <if test="deviceId != null and deviceId != ''">
+            AND DEVICE_ID = #{deviceId}
+        </if>
+        <if test="qryStartDt != null and qryStartDt != ''">
+            AND DATE_FORMAT(SEND_DT, '%Y%m%d') <![CDATA[>=]]> #{qryStartDt}
+        </if>
+        ORDER BY SEND_DT DESC
+    </select>
+
+    <select id="getPushNotiInfoList" parameterType="pushDeviceVO" resultMap="pushNotiInfoMap">
+        SELECT A.NOTI_CODE, A.NOTI_NM,
+        IF(B.NOTI_CODE IS NULL, 'N', 'Y') AS IS_SETTING
+        FROM (SELECT APP_CODE, NOTI_CODE, NOTI_NM
+        FROM TBFF_PUSH_NOTIINFO
+        WHERE APP_CODE = #{appCode}) A
+        LEFT JOIN TBFF_PUSH_DEVICEREG B
+        ON A.APP_CODE = B.APP_CODE
+        AND A.NOTI_CODE = B.NOTI_CODE
+        AND B.DEVICE_TYPE = #{deviceType}
+        AND B.DEVICE_ID = #{deviceId}
+        ORDER BY NOTI_CODE
+    </select>
+
+    <select id="getPushDeviceList" parameterType="pushDeviceVO" resultMap="pushDeviceMap">
+        SELECT DEVICE_TYPE, DEVICE_ID, CUST_ID, APP_CODE
+        FROM TBFF_PUSH_DEVICE
+        WHERE CUST_ID = #{custId}
+        AND DEVICE_TYPE = #{deviceType}
+        AND APP_CODE = #{appCode}
+    </select>
+
+    <select id="getCustIdList" parameterType="pushDeviceRegVO" resultMap="pushDeviceMap">
+        SELECT A.DEVICE_TYPE, A.DEVICE_ID, A.CUST_ID, A.APP_CODE
+        FROM TBFF_PUSH_DEVICE A
+        JOIN TBFF_PUSH_DEVICEREG B
+        ON A.DEVICE_TYPE = B.DEVICE_TYPE
+        AND A.DEVICE_ID = B.DEVICE_ID
+        AND A.APP_CODE = B.APP_CODE
+        WHERE A.DEVICE_TYPE = #{deviceType}
+        AND A.APP_CODE = #{appCode}
+        AND B.NOTI_CODE = #{notiCode}
+    </select>
+
+    <update id="updatePushDevice" parameterType="tmpPushDeviceVO">
+        UPDATE TBFF_PUSH_DEVICE
+        SET DEVICE_ID = #{newDeviceId}
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{oldDeviceId}
+        AND APP_CODE = #{appCode}
+    </update>
+
+    <update id="updatePushDeviceReg" parameterType="tmpPushDeviceVO">
+        UPDATE TBFF_PUSH_DEVICEREG
+        SET DEVICE_ID = #{newDeviceId}, REG_DT = NOW()
+        WHERE APP_CODE = #{appCode}
+        AND DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{oldDeviceId}
+    </update>
+
+    <update id="updateReceiveSuccess" parameterType="long">
+        UPDATE TBFF_PUSH_HIST
+        SET RECEIVE_SUCCES_YN = 'Y'
+        WHERE HIST_SEQ = #{histSeq}
+    </update>
+
+</mapper>
