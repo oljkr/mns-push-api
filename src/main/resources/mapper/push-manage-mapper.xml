@@ -25,6 +25,21 @@
         <result property="appCode" column="APP_CODE"/>
     </resultMap>
 
+    <resultMap type="pushNotiRegVO" id="pushNotiRegMap">
+        <result property="pnrNo" column="pnr_no"/>
+        <result property="pdNo" column="pd_no"/>
+        <result property="pushInfoNo" column="push_info_no"/>
+        <result property="regDt" column="reg_dt"/>
+    </resultMap>
+
+    <select id="selectPushDevice" parameterType="pushDeviceVO" resultType="kr.wishtarot.mnspushapi.domain.PushDevice">
+        SELECT *
+        FROM push_device
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        AND APP_CODE = #{appCode}
+    </select>
+
     <select id="getCustIdFromPushDevice" parameterType="pushDeviceVO" resultType="String">
         SELECT CUST_ID
         FROM TBFF_PUSH_DEVICE
@@ -35,28 +50,50 @@
         </if>
     </select>
 
-    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
-        SELECT COUNT(*)
-        FROM TBFF_PUSH_DEVICE
+    <select id="getPdNoFromPushDevice" parameterType="pushDeviceVO" resultType="java.lang.Long">
+        SELECT pd_no
+        FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
         AND APP_CODE = #{appCode}
     </select>
 
-    <select id="getRegApp" resultType="String">
-        SELECT APP_CODE
-        FROM TBFF_PUSH_APP
+    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="java.lang.Long">
+        SELECT COUNT(*)
+        FROM push_device
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        AND APP_CODE = #{appCode}
+    </select>
+
+    <select id="countRegAppByCriteria" resultType="int">
+        SELECT COUNT(*)
+        FROM app_info
         WHERE APP_CODE = #{appCode}
     </select>
 
+    <select id="getRegApp" resultType="String">
+        SELECT APP_CODE
+        FROM app_info
+        WHERE APP_CODE = #{appCode}
+    </select>
+
+    <select id="getPushInfoNoByAppCodeAndNotiCode" parameterType="map" resultType="java.lang.Long">
+        SELECT pi.push_info_no
+        FROM push_info pi
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE ai.app_code = #{appCode}
+        AND pi.noti_code = #{notiCode}
+    </select>
+
     <insert id="insertPushDevice" parameterType="pushDeviceVO">
-        INSERT INTO TBFF_PUSH_DEVICE
-        (DEVICE_TYPE, DEVICE_ID, APP_CODE
+        INSERT INTO push_device
+        (DEVICE_TYPE, DEVICE_ID, APP_CODE, REG_DT
         <if test="custId != null">
             , CUST_ID
         </if>)
         VALUES
-        (#{deviceType}, #{deviceId}, #{appCode}
+        (#{deviceType}, #{deviceId}, #{appCode}, NOW()
         <if test="custId != null">
             , #{custId}
         </if>)
@@ -64,7 +101,7 @@
 
     <delete id="deletePushDevice" parameterType="pushDeviceVO">
         DELETE
-        FROM TBFF_PUSH_DEVICE
+        FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
         AND APP_CODE = #{appCode}
@@ -92,6 +129,13 @@
         (#{appCode}, #{notiCode}, #{deviceType}, #{deviceId}, NOW())
     </insert>
 
+    <insert id="insertPushNotiReg" parameterType="pushNotiRegVO">
+        INSERT INTO push_noti_reg
+        (pd_no, push_info_no, reg_dt)
+        VALUES
+        (#{pdNo}, #{pushInfoNo}, NOW())
+    </insert>
+
     <delete id="deletePushDeviceReg" parameterType="pushDeviceRegVO">
         DELETE
         FROM TBFF_PUSH_DEVICEREG
@@ -99,6 +143,13 @@
         AND NOTI_CODE = #{notiCode}
         AND DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
+    </delete>
+
+    <delete id="deletePushNotiReg" parameterType="pushNotiRegVO">
+        DELETE
+        FROM push_noti_reg
+        WHERE pd_no = #{pdNo}
+        AND push_info_no = #{pushInfoNo}
     </delete>
 
     <select id="getPushHistList" parameterType="pushHistVO" resultMap="pushHistMap">

@@ -55,7 +55,7 @@ public interface PushManageService {
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception;
+//    String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception;
 
     /**
      * 단말기로부터 Feedback이 되지 않은 Push 알림 이력(재전송 대상) 목록을 JSON 형식으로 조회합니다.
@@ -69,7 +69,7 @@ public interface PushManageService {
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String getTargetResendListAsJson(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) throws Exception;
+//    String getTargetResendListAsJson(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) throws Exception;
 
     /**
      * 앱에 등록된 Push 알림 목록을 JSON 형식으로 조회합니다.
@@ -91,7 +91,7 @@ public interface PushManageService {
      * @return 디바이스 ID 목록을 JSON 형식으로 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String getPushDeviceListAsJson(String appCode, String deviceType, String custId) throws Exception;
+//    String getPushDeviceListAsJson(String appCode, String deviceType, String custId) throws Exception;
 
     /**
      * 특정 알림 코드가 등록된 회원ID 목록을 JSON 형식으로 조회합니다.

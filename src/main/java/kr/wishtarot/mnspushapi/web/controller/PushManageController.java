@@ -25,7 +25,7 @@ public class PushManageController {
      * 디바이스가 등록되어 있는지 확인하는 요청을 처리합니다.
      *
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
+     * @param deviceId 디바이스 ID
      * @param appCode 앱 코드 (패키지 이름)
      * @return 디바이스가 등록되어 있으면 'Y', 그렇지 않으면 'N'을 반환합니다.
      *         오류가 발생할 경우 HTTP 500 상태와 에러 메시지를 반환합니다.
@@ -46,7 +46,7 @@ public class PushManageController {
      *
      * @param mode 'reg' 등록, 'del' 삭제
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param deviceId 디바이스 ID (Private Push의 경우는 회원 ID)
+     * @param deviceId 디바이스 ID
      * @param appCode 앱 코드 (패키지 이름)
      * @param custId 고객 ID (등록 시 필수)
      * @return HTTP 응답 상태와 결과 메시지
@@ -71,7 +71,7 @@ public class PushManageController {
      * @param appCode 앱 코드 (패키지 이름)
      * @param notiCode 알림 코드
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param deviceId 디바이스 ID (Private Push의 경우는 회원 ID)
+     * @param deviceId 디바이스 ID
      * @return HTTP 응답 상태와 결과 메시지
      */
     @PostMapping("/notifications/manage")
@@ -91,7 +91,7 @@ public class PushManageController {
      * 전송된 Push 알림 이력 목록을 조회합니다.
      *
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
+     * @param deviceId 디바이스 ID
      * @param appCode (선택적) 앱 코드 (패키지 이름)
      * @param receiveSuccesYn (선택적) 전송 성공 여부 ('Y' or 'N')
      * @param qryStartDt (선택적) 요청 날짜부터 최근일까지의 데이터 조회 (형식: YYYYMMDD)
@@ -104,7 +104,8 @@ public class PushManageController {
                                                  @RequestParam(required = false) String receiveSuccesYn,
                                                  @RequestParam(required = false) String qryStartDt) {
         try {
-            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt));
+//            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt));
+            return null;
         } catch (Exception e) {
             return handleException(e, "Error in getPushHistory");
         }
@@ -117,7 +118,7 @@ public class PushManageController {
      * @param appCode (선택적) 앱 코드 (패키지 이름)
      * @param notiCode (선택적) 알림 코드
      * @param custId (선택적) 회원 ID
-     * @param deviceId (선택적) 디바이스 ID (Private Push의 경우 회원 ID)
+     * @param deviceId (선택적) 디바이스 ID
      * @param qryStartDt (선택적) 요청 날짜부터 최근일까지의 데이터 조회 (형식: yyyyMMdd)
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      */
@@ -129,7 +130,8 @@ public class PushManageController {
                                                       @RequestParam(required = false) String deviceId,
                                                       @RequestParam(required = false) String qryStartDt) {
         try {
-            return ResponseEntity.ok(pushManageService.getTargetResendListAsJson(deviceType, appCode, notiCode, custId, deviceId, qryStartDt));
+//            return ResponseEntity.ok(pushManageService.getTargetResendListAsJson(deviceType, appCode, notiCode, custId, deviceId, qryStartDt));
+            return null;
         } catch (Exception e) {
             return handleException(e, "Error in getTargetResendList");
         }
@@ -140,7 +142,7 @@ public class PushManageController {
      *
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param appCode 앱 코드 (패키지 이름)
-     * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
+     * @param deviceId 디바이스 ID
      * @return Push 알림 목록을 JSON 형식으로 반환합니다.
      */
     @GetMapping("/notifications/list")
@@ -167,7 +169,8 @@ public class PushManageController {
                                                 @RequestParam String deviceType,
                                                 @RequestParam String custId) {
         try {
-            return ResponseEntity.ok(pushManageService.getPushDeviceListAsJson(appCode, deviceType, custId));
+//            return ResponseEntity.ok(pushManageService.getPushDeviceListAsJson(appCode, deviceType, custId));
+            return null;
         } catch (Exception e) {
             return handleException(e, "Error in getDeviceList");
         }

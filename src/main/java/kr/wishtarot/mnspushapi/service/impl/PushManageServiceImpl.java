@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 import kr.wishtarot.mnspushapi.dao.PushManageDAO;
 import kr.wishtarot.mnspushapi.service.PushManageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.HashMap;
 import java.util.List;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Service
 public class PushManageServiceImpl implements PushManageService {
@@ -32,20 +35,25 @@ public class PushManageServiceImpl implements PushManageService {
         return (count > 0) ? "Y" : "N";
     }
 
-    private int countPushDeviceByCriteria(String deviceType, String deviceId, String appCode) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null);
-        return pushManageDAO.countPushDeviceByCriteria(pushDevice);
+    private String getCustIdFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+        return pushManageDAO.getCustIdFromPushDevice(pushDevice);
     }
 
-    private String getCustIdFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null);
-        return pushManageDAO.getCustIdFromPushDevice(pushDevice);
+    private Long getPdNoFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+        return pushManageDAO.getPdNoFromPushDevice(pushDevice);
+    }
+
+    private int countPushDeviceByCriteria(String deviceType, String deviceId, String appCode) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+        return pushManageDAO.countPushDeviceByCriteria(pushDevice);
     }
 
     @Override
     public String manageDevice(String mode, String deviceType, String deviceId, String appCode, String custId) throws Exception {
         custId = normalize(custId);
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, custId);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, custId, null);
 
         if ("reg".equalsIgnoreCase(mode)) {
             return handleDeviceRegistration(pushDevice);
@@ -57,9 +65,9 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     private String handleDeviceRegistration(PushDevice pushDevice) throws Exception {
-        String regApp = pushManageDAO.getRegApp(pushDevice.getAppCode());
+        int count = pushManageDAO.countRegAppByCriteria(pushDevice.getAppCode());
         // 등록된 앱이 아니면 등록 실패
-        if (regApp != null) {
+        if (count > 0) {
             int result = pushManageDAO.insertPushDevice(pushDevice);
             return (result > 0) ? "[SUCCESS]" : "[FAIL] Registration failed";
         }
@@ -79,22 +87,31 @@ public class PushManageServiceImpl implements PushManageService {
 
     @Override
     public String managePushNotification(String mode, String appCode, String notiCode, String deviceType, String deviceId) throws Exception {
-        PushDeviceReg pushDeviceReg = createPushDeviceReg(appCode, notiCode, deviceType, deviceId);
-
-        int count = countPushDeviceByCriteria(deviceType, deviceId, appCode);
-        if(count == 0) {
+        // push_device 테이블에서 정보를 가져옴(pd_no가져오기)
+        Long pdNo = getPdNoFromPushDevice(deviceType, deviceId, appCode);
+        if(pdNo == null) {
             return "[FAIL] Device not registered";
         }
 
+        Map<String, Object> params = new HashMap<>();
+        params.put("appCode", appCode);
+        params.put("notiCode", notiCode);
+
+        // 해당하는 알림이 등록되어 있는지 확인
+        // app_code와 noti_code로 push_info테이블과 app_info테이블을 조인해서 push_info_no를 가져옴
+        Long push_info_no = pushManageDAO.getPushInfoNoByAppCodeAndNotiCode(params);
+        if(push_info_no == null) {
+            return "[FAIL] Notification not registered";
+        }
+
+        PushNotiReg pushNotiReg = createPushNotiReg(pdNo, push_info_no, null);
+
         int pushDeviceResult = 0;
         if ("reg".equalsIgnoreCase(mode)) {
-            // 해당하는 알림이 등록되어 있는지 확인
-            String regPushNoti = getRegPushNoti(appCode, notiCode);
-            if (regPushNoti != null) {
-                pushDeviceResult = pushManageDAO.insertPushDeviceReg(pushDeviceReg);
-            }
+            // push_info_no와 위의 pd_no로 알림을 등록함
+            pushDeviceResult = pushManageDAO.insertPushNotiReg(pushNotiReg);
         } else if ("del".equalsIgnoreCase(mode)) {
-            pushDeviceResult = pushManageDAO.deletePushDeviceReg(pushDeviceReg);
+            pushDeviceResult = pushManageDAO.deletePushNotiReg(pushNotiReg);
         } else {
             throw new IllegalArgumentException("[FAIL] Invalid mode");
         }
@@ -107,33 +124,33 @@ public class PushManageServiceImpl implements PushManageService {
         return pushManageDAO.getRegPushNoti(pushNotiInfo);
     }
 
-    @Override
-    public String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception {
-        PushHist pushHist = createPushHist(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt);
-        List<PushHist> pushHistList = pushManageDAO.getPushHistList(pushHist);
-        return objectMapper.writeValueAsString(pushHistList);
-    }
-
-    @Override
-    public String getTargetResendListAsJson(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) throws Exception {
-        PushHist pushHist = createPushHistForResend(deviceType, appCode, notiCode, custId, deviceId, qryStartDt);
-        List<PushHist> targetResendList = pushManageDAO.getTargetResendList(pushHist);
-        return objectMapper.writeValueAsString(targetResendList);
-    }
+//    @Override
+//    public String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception {
+//        PushHist pushHist = createPushHist(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt);
+//        List<PushHist> pushHistList = pushManageDAO.getPushHistList(pushHist);
+//        return objectMapper.writeValueAsString(pushHistList);
+//    }
+//
+//    @Override
+//    public String getTargetResendListAsJson(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) throws Exception {
+//        PushHist pushHist = createPushHistForResend(deviceType, appCode, notiCode, custId, deviceId, qryStartDt);
+//        List<PushHist> targetResendList = pushManageDAO.getTargetResendList(pushHist);
+//        return objectMapper.writeValueAsString(targetResendList);
+//    }
 
     @Override
     public String getPushNotiListAsJson(String appCode, String deviceType, String deviceId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null,null);
         List<PushNotiInfo> pushNotiInfoList = pushManageDAO.getPushNotiInfoList(pushDevice);
         return objectMapper.writeValueAsString(pushNotiInfoList);
     }
 
-    @Override
-    public String getPushDeviceListAsJson(String appCode, String deviceType, String custId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, null, appCode, custId);
-        List<PushDevice> pushDeviceList = pushManageDAO.getPushDeviceList(pushDevice);
-        return objectMapper.writeValueAsString(pushDeviceList);
-    }
+//    @Override
+//    public String getPushDeviceListAsJson(String appCode, String deviceType, String custId) throws Exception {
+//        PushDevice pushDevice = createPushDevice(deviceType, null, appCode, custId,null);
+//        List<PushDevice> pushDeviceList = pushManageDAO.getPushDeviceList(pushDevice);
+//        return objectMapper.writeValueAsString(pushDeviceList);
+//    }
 
     @Override
     public String getCustIdListAsJson(String deviceType, String appCode, String notiCode) throws Exception {
@@ -165,14 +182,49 @@ public class PushManageServiceImpl implements PushManageService {
         return (value == null) ? "" : value.trim();
     }
 
-    private PushDevice createPushDevice(String deviceType, String deviceId, String appCode, String custId) {
+    private PushDevice createPushDevice(String deviceType, String deviceId, String appCode, String custId, LocalDateTime regDt) {
         return PushDevice.builder()
                 .deviceType(deviceType)
                 .deviceId(deviceId)
                 .appCode(appCode)
                 .custId(custId)
+                .regDt(regDt)
                 .build();
     }
+
+    private AppInfo createAppInfo(String appCode, String appNm) {
+        return AppInfo.builder()
+                .appCode(appCode)
+                .appNm(appNm)
+                .build();
+    }
+
+    private PushNotiReg createPushNotiReg(Long pdNo, Long pushInfoNo, LocalDateTime regDt) {
+        return PushNotiReg.builder()
+                .pdNo(pdNo)
+                .pushInfoNo(pushInfoNo)
+                .regDt(regDt)
+                .build();
+    }
+
+    private PushInfo createPushInfo(Long pushAppNo, String notiCode, String notiNm) {
+        return PushInfo.builder()
+                .pushAppNo(pushAppNo)
+                .notiCode(notiCode)
+                .notiNm(notiNm)
+                .build();
+    }
+
+//    private PushHist createPushHist(Long pnrNo, String title, String message, LocalDateTime sendDt, String sendSuccessYn, String sendError) {
+//        return PushHist.builder()
+//                .pnrNo(pnrNo)
+//                .title(title)
+//                .message(message)
+//                .sendDt(sendDt)
+//                .sendSuccessYn(sendSuccessYn)
+//                .sendError(sendError)
+//                .build();
+//    }
 
     private PushDeviceReg createPushDeviceReg(String appCode, String notiCode, String deviceType, String deviceId) {
         return PushDeviceReg.builder()
@@ -183,6 +235,15 @@ public class PushManageServiceImpl implements PushManageService {
                 .build();
     }
 
+    private PushNotiReg createPushNotiReg(Long pnrNo, Long pdNo, Long pushInfoNo, LocalDateTime regDt) {
+        return PushNotiReg.builder()
+                .pnrNo(pnrNo)
+                .pdNo(pdNo)
+                .pushInfoNo(pushInfoNo)
+                .regDt(regDt)
+                .build();
+    }
+
     private PushNotiInfo createPushNotiInfo(String appCode, String notiCode) {
         return PushNotiInfo.builder()
                 .appCode(appCode)
@@ -190,30 +251,54 @@ public class PushManageServiceImpl implements PushManageService {
                 .build();
     }
 
-    private PushHist createPushHist(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) {
-        LocalDateTime qryStartDateTime = (qryStartDt != null && !qryStartDt.isEmpty())
-                ? LocalDateTime.parse(qryStartDt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
-                : null;
-
-        return PushHist.builder()
-                .deviceType(deviceType)
-                .deviceId(deviceId)
-                .appCode(appCode)
-                .receiveSuccesYn(normalize(receiveSuccesYn))
-                .qryStartDt(qryStartDateTime)
-                .build();
-    }
-
-    private PushHist createPushHistForResend(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) {
-        return PushHist.builder()
-                .deviceType(deviceType)
-                .appCode(normalize(appCode))
-                .notiCode(normalize(notiCode))
-                .custId(normalize(custId))
-                .deviceId(normalize(deviceId))
-                .qryStartDt(qryStartDt.isEmpty() ? null : LocalDateTime.parse(qryStartDt, DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))
-                .build();
-    }
+//    private PushHist createPushHist(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) {
+//        LocalDateTime qryStartDateTime = (qryStartDt != null && !qryStartDt.isEmpty())
+//                ? LocalDateTime.parse(qryStartDt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+//                : null;
+//
+//        return PushHist.builder()
+//                .deviceType(deviceType)
+//                .deviceId(deviceId)
+//                .appCode(appCode)
+//                .receiveSuccesYn(normalize(receiveSuccesYn))
+//                .qryStartDt(qryStartDateTime)
+//                .build();
+//    }
+//
+//    private PushHist createPushHist(Long histNo, Long pnrNo, String title, String message, LocalDateTime qryStartDt, String sendSuccessYn, String sendError) {
+//        LocalDateTime qryStartDateTime = (qryStartDt != null && !qryStartDt.isEmpty())
+//                ? LocalDateTime.parse(qryStartDt, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS"))
+//                : null;
+//
+//        return PushHist.builder()
+//                .pnrNo(pnrNo)
+//                .title(title)
+//                .message(message)
+//                .sendDt(sendDt)
+//                .sendSuccessYn(sendSuccessYn)
+//                .sendError(sendError)
+//                .build();
+//
+//        return PushHist.builder()
+//                .histNo(
+//                .deviceType(deviceType)
+//                .deviceId(deviceId)
+//                .appCode(appCode)
+//                .receiveSuccesYn(normalize(receiveSuccesYn))
+//                .qryStartDt(qryStartDateTime)
+//                .build();
+//    }
+//
+//    private PushHist createPushHistForResend(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) {
+//        return PushHist.builder()
+//                .deviceType(deviceType)
+//                .appCode(normalize(appCode))
+//                .notiCode(normalize(notiCode))
+//                .custId(normalize(custId))
+//                .deviceId(normalize(deviceId))
+//                .qryStartDt(qryStartDt.isEmpty() ? null : LocalDateTime.parse(qryStartDt, DateTimeFormatter.ofPattern("yyyyMMddHHmmss")))
+//                .build();
+//    }
 
     private TmpPushDevice createTmpPushDevice(String appCode, String deviceType, String oldDeviceId, String newDeviceId) {
         return TmpPushDevice.builder()

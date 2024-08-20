@@ -1,16 +1,12 @@
 package kr.wishtarot.mnspushapi.dao;
 
 import java.util.List;
+import java.util.Map;
 
+import kr.wishtarot.mnspushapi.domain.*;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
-import kr.wishtarot.mnspushapi.domain.PushDevice;
-import kr.wishtarot.mnspushapi.domain.PushHist;
-import kr.wishtarot.mnspushapi.domain.PushNotiInfo;
-import kr.wishtarot.mnspushapi.domain.PushDeviceReg;
-import kr.wishtarot.mnspushapi.domain.TmpPushDevice;
 
 @Repository
 public class PushManageDAO {
@@ -26,12 +22,24 @@ public class PushManageDAO {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getCustIdFromPushDevice", pushDeviceVO);
     }
 
+    public Long getPdNoFromPushDevice(PushDevice pushDeviceVO) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPdNoFromPushDevice", pushDeviceVO);
+    }
+
     public int countPushDeviceByCriteria(PushDevice pushDeviceVO) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.countPushDeviceByCriteria", pushDeviceVO);
     }
 
+    public int countRegAppByCriteria(String appCode) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.countRegAppByCriteria", appCode);
+    }
+
     public String getRegApp(String appCode) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getRegApp", appCode);
+    }
+
+    public Long getPushInfoNoByAppCodeAndNotiCode(Map<String, Object> params) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoByAppCodeAndNotiCode", params);
     }
 
     public String getRegPushNoti(PushNotiInfo pniv) {
@@ -66,8 +74,16 @@ public class PushManageDAO {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushDeviceReg", pdrv);
     }
 
+    public int insertPushNotiReg(PushNotiReg pnrv) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushNotiReg", pnrv);
+    }
+
     public int deletePushDeviceReg(PushDeviceReg pdrv) {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushDeviceReg", pdrv);
+    }
+
+    public int deletePushNotiReg(PushNotiReg pnrv) {
+        return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushNotiReg", pnrv);
     }
 
     public int deleteAllPushDeviceReg(PushDevice pdv) {

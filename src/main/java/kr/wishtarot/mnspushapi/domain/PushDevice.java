@@ -4,10 +4,13 @@ import lombok.Builder;
 import lombok.Data;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 public class PushDevice {
+
+    private Long pdNo; // pd_no 컬럼에 해당하는 필드 추가
 
     @NotNull
     @Size(max = 2)
@@ -17,11 +20,12 @@ public class PushDevice {
     @Size(max = 200)
     private String deviceId;
 
-    @Size(max = 50)
+    @Size(max = 100)
     private String custId;
 
     @NotNull
     @Size(max = 50)
     private String appCode;
 
+    private LocalDateTime regDt; // reg_dt 컬럼에 해당하는 필드 추가
 }
