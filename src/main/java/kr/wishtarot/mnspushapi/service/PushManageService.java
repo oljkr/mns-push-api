@@ -11,7 +11,7 @@ public interface PushManageService {
      * @return 디바이스가 등록되어 있으면 'Y', 그렇지 않으면 'N'을 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String isDeviceRegistered(String deviceType, String deviceId, String appCode) throws Exception;
+    String isDeviceRegistered(String deviceType, String deviceId) throws Exception;
 
     /**
      * 디바이스를 등록하거나 삭제합니다.
@@ -25,7 +25,7 @@ public interface PushManageService {
      *         등록 또는 삭제 작업이 성공하면 'SUCCESS'를 반환하고, 실패하면 'FAIL'을 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String manageDevice(String mode, String deviceType, String deviceId, String appCode, String custId) throws Exception;
+    String manageDevice(String mode, String deviceType, String deviceId, String custId) throws Exception;
 
     // Optional: If handleDeviceRegistration and handleDeviceDeletion need to be exposed publicly
     // String handleDeviceRegistration(PushDeviceVO pushDeviceVO) throws Exception;
@@ -55,7 +55,7 @@ public interface PushManageService {
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-//    String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception;
+    String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception;
 
     /**
      * 단말기로부터 Feedback이 되지 않은 Push 알림 이력(재전송 대상) 목록을 JSON 형식으로 조회합니다.

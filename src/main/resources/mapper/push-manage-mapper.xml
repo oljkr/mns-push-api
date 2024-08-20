@@ -55,15 +55,13 @@
         FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
-        AND APP_CODE = #{appCode}
     </select>
 
-    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="java.lang.Long">
+    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
         SELECT COUNT(*)
         FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
-        AND APP_CODE = #{appCode}
     </select>
 
     <select id="countRegAppByCriteria" resultType="int">
@@ -88,12 +86,12 @@
 
     <insert id="insertPushDevice" parameterType="pushDeviceVO">
         INSERT INTO push_device
-        (DEVICE_TYPE, DEVICE_ID, APP_CODE, REG_DT
+        (DEVICE_TYPE, DEVICE_ID, REG_DT
         <if test="custId != null">
             , CUST_ID
         </if>)
         VALUES
-        (#{deviceType}, #{deviceId}, #{appCode}, NOW()
+        (#{deviceType}, #{deviceId}, NOW()
         <if test="custId != null">
             , #{custId}
         </if>)
@@ -104,7 +102,6 @@
         FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
-        AND APP_CODE = #{appCode}
     </delete>
 
     <delete id="deleteAllPushDeviceReg" parameterType="pushDeviceVO">
@@ -114,6 +111,19 @@
         AND DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
     </delete>
+
+    <delete id="deletePushNotiRegUsingPushDevice" parameterType="pushDeviceVO">
+        <!-- Push Device 정보를 사용하여 push_noti_reg 테이블의 데이터를 삭제 -->
+        DELETE pnr
+        FROM push_noti_reg pnr
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        WHERE pd.device_type = #{deviceType}  <!-- pushDeviceVO의 deviceType 사용 -->
+        AND pd.device_id = #{deviceId}        <!-- pushDeviceVO의 deviceId 사용 -->
+        <if test="custId != null">
+            AND pd.cust_id = #{custId}        <!-- pushDeviceVO의 custId 사용 (필요한 경우) -->
+        </if>
+    </delete>
+
 
     <select id="getRegPushNoti" parameterType="pushNotiInfoVO" resultType="String">
         SELECT NOTI_CODE

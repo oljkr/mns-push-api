@@ -26,16 +26,14 @@ public class PushManageController {
      *
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID
-     * @param appCode 앱 코드 (패키지 이름)
      * @return 디바이스가 등록되어 있으면 'Y', 그렇지 않으면 'N'을 반환합니다.
      *         오류가 발생할 경우 HTTP 500 상태와 에러 메시지를 반환합니다.
      */
     @GetMapping("/device/registration-status")
     public ResponseEntity<String> isDeviceRegistered(@RequestParam String deviceType,
-                                                     @RequestParam String deviceId,
-                                                     @RequestParam String appCode) {
+                                                     @RequestParam String deviceId) {
         try {
-            return ResponseEntity.ok(pushManageService.isDeviceRegistered(deviceType, deviceId, appCode));
+            return ResponseEntity.ok(pushManageService.isDeviceRegistered(deviceType, deviceId));
         } catch (Exception e) {
             return handleException(e, "Error in isDeviceRegistered");
         }
@@ -55,10 +53,9 @@ public class PushManageController {
     public ResponseEntity<String> manageDevice(@RequestParam String mode,
                                                @RequestParam String deviceType,
                                                @RequestParam String deviceId,
-                                               @RequestParam String appCode,
                                                @RequestParam(required = false) String custId) {
         try {
-            return ResponseEntity.ok(pushManageService.manageDevice(mode, deviceType, deviceId, appCode, custId));
+            return ResponseEntity.ok(pushManageService.manageDevice(mode, deviceType, deviceId, custId));
         } catch (Exception e) {
             return handleException(e, "Error in manageDevice");
         }
@@ -100,12 +97,13 @@ public class PushManageController {
     @GetMapping("/notifications/history")
     public ResponseEntity<String> getPushHistory(@RequestParam String deviceType,
                                                  @RequestParam String deviceId,
+                                                 @RequestParam String custId,
                                                  @RequestParam(required = false) String appCode,
+                                                 @RequestParam(required = false) String notiCode,
                                                  @RequestParam(required = false) String receiveSuccesYn,
                                                  @RequestParam(required = false) String qryStartDt) {
         try {
-//            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt));
-            return null;
+            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt));
         } catch (Exception e) {
             return handleException(e, "Error in getPushHistory");
         }

@@ -30,30 +30,30 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
-    public String isDeviceRegistered(String deviceType, String deviceId, String appCode) throws Exception {
-        int count = countPushDeviceByCriteria(deviceType, deviceId, appCode);
+    public String isDeviceRegistered(String deviceType, String deviceId) throws Exception {
+        int count = countPushDeviceByCriteria(deviceType, deviceId);
         return (count > 0) ? "Y" : "N";
     }
 
     private String getCustIdFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, null, null);
         return pushManageDAO.getCustIdFromPushDevice(pushDevice);
     }
 
-    private Long getPdNoFromPushDevice(String deviceType, String deviceId, String appCode) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+    private Long getPdNoFromPushDevice(String deviceType, String deviceId) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, null, null);
         return pushManageDAO.getPdNoFromPushDevice(pushDevice);
     }
 
-    private int countPushDeviceByCriteria(String deviceType, String deviceId, String appCode) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null, null);
+    private int countPushDeviceByCriteria(String deviceType, String deviceId) throws Exception {
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, null, null);
         return pushManageDAO.countPushDeviceByCriteria(pushDevice);
     }
 
     @Override
-    public String manageDevice(String mode, String deviceType, String deviceId, String appCode, String custId) throws Exception {
+    public String manageDevice(String mode, String deviceType, String deviceId, String custId) throws Exception {
         custId = normalize(custId);
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, custId, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null);
 
         if ("reg".equalsIgnoreCase(mode)) {
             return handleDeviceRegistration(pushDevice);
@@ -65,30 +65,30 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     private String handleDeviceRegistration(PushDevice pushDevice) throws Exception {
-        int count = pushManageDAO.countRegAppByCriteria(pushDevice.getAppCode());
-        // 등록된 앱이 아니면 등록 실패
-        if (count > 0) {
-            int result = pushManageDAO.insertPushDevice(pushDevice);
-            return (result > 0) ? "[SUCCESS]" : "[FAIL] Registration failed";
-        }
+//        int count = pushManageDAO.countRegAppByCriteria(pushDevice.getAppCode());
+//        // 등록된 앱이 아니면 등록 실패
+//        if (count > 0) {
+//            int result = pushManageDAO.insertPushDevice(pushDevice);
+//            return (result > 0) ? "[SUCCESS]" : "[FAIL] Registration failed";
+//        }
 
-        return "[FAIL] Registration failed";
+        int result = pushManageDAO.insertPushDevice(pushDevice);
+        return (result > 0) ? "[SUCCESS]" : "[FAIL] Registration failed";
+
     }
 
     private String handleDeviceDeletion(PushDevice pushDevice) throws Exception {
-        int result = pushManageDAO.deletePushDevice(pushDevice);
-        if (result > 0) {
-            // 삭제 시 알림 수신 등록도 삭제
-            pushManageDAO.deleteAllPushDeviceReg(pushDevice);
-            return "[SUCCESS]";
-        }
-        return "[FAIL] Deletion failed";
+        // 등록된 알림 수신 내용을 먼저 삭제한다.
+        pushManageDAO.deletePushNotiRegUsingPushDevice(pushDevice);
+        pushManageDAO.deletePushDevice(pushDevice);
+
+        return "[SUCCESS]";
     }
 
     @Override
     public String managePushNotification(String mode, String appCode, String notiCode, String deviceType, String deviceId) throws Exception {
         // push_device 테이블에서 정보를 가져옴(pd_no가져오기)
-        Long pdNo = getPdNoFromPushDevice(deviceType, deviceId, appCode);
+        Long pdNo = getPdNoFromPushDevice(deviceType, deviceId);
         if(pdNo == null) {
             return "[FAIL] Device not registered";
         }
@@ -124,13 +124,14 @@ public class PushManageServiceImpl implements PushManageService {
         return pushManageDAO.getRegPushNoti(pushNotiInfo);
     }
 
-//    @Override
-//    public String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception {
+    @Override
+    public String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception {
 //        PushHist pushHist = createPushHist(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt);
 //        List<PushHist> pushHistList = pushManageDAO.getPushHistList(pushHist);
 //        return objectMapper.writeValueAsString(pushHistList);
-//    }
-//
+        return null;
+    }
+
 //    @Override
 //    public String getTargetResendListAsJson(String deviceType, String appCode, String notiCode, String custId, String deviceId, String qryStartDt) throws Exception {
 //        PushHist pushHist = createPushHistForResend(deviceType, appCode, notiCode, custId, deviceId, qryStartDt);
@@ -140,9 +141,10 @@ public class PushManageServiceImpl implements PushManageService {
 
     @Override
     public String getPushNotiListAsJson(String appCode, String deviceType, String deviceId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null,null);
-        List<PushNotiInfo> pushNotiInfoList = pushManageDAO.getPushNotiInfoList(pushDevice);
-        return objectMapper.writeValueAsString(pushNotiInfoList);
+//        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null,null);
+//        List<PushNotiInfo> pushNotiInfoList = pushManageDAO.getPushNotiInfoList(pushDevice);
+//        return objectMapper.writeValueAsString(pushNotiInfoList);
+        return null;
     }
 
 //    @Override
@@ -182,11 +184,10 @@ public class PushManageServiceImpl implements PushManageService {
         return (value == null) ? "" : value.trim();
     }
 
-    private PushDevice createPushDevice(String deviceType, String deviceId, String appCode, String custId, LocalDateTime regDt) {
+    private PushDevice createPushDevice(String deviceType, String deviceId, String custId, LocalDateTime regDt) {
         return PushDevice.builder()
                 .deviceType(deviceType)
                 .deviceId(deviceId)
-                .appCode(appCode)
                 .custId(custId)
                 .regDt(regDt)
                 .build();

@@ -22,10 +22,10 @@ public class PushDevice {
 
     @Size(max = 100)
     private String custId;
-
-    @NotNull
-    @Size(max = 50)
-    private String appCode;
+//
+//    @NotNull
+//    @Size(max = 50)
+//    private String appCode;
 
     private LocalDateTime regDt; // reg_dt 컬럼에 해당하는 필드 추가
 }

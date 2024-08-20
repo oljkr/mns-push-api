@@ -90,6 +90,10 @@ public class PushManageDAO {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deleteAllPushDeviceReg", pdv);
     }
 
+    public int deletePushNotiRegUsingPushDevice(PushDevice pdv) {
+        return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushNotiRegUsingPushDevice", pdv);
+    }
+
     public List<PushDevice> getPushDeviceList(PushDevice pdv) {
         return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushDeviceList", pdv);
     }
