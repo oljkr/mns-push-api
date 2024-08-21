@@ -2,11 +2,14 @@ package kr.wishtarot.mnspushapi.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.ibatis.type.Alias;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
 @Builder
+@Alias("pushDeviceRegVO")
 public class PushDeviceReg {
 
     @NotNull

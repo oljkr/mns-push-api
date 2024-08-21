@@ -2,12 +2,15 @@ package kr.wishtarot.mnspushapi.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.ibatis.type.Alias;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
+@Alias("pushDeviceVO")
 public class PushDevice {
 
     private Long pdNo; // pd_no 컬럼에 해당하는 필드 추가
@@ -22,10 +25,6 @@ public class PushDevice {
 
     @Size(max = 100)
     private String custId;
-//
-//    @NotNull
-//    @Size(max = 50)
-//    private String appCode;
 
     private LocalDateTime regDt; // reg_dt 컬럼에 해당하는 필드 추가
 }

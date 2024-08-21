@@ -26,6 +26,10 @@ public class PushManageDAO {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPdNoFromPushDevice", pushDeviceVO);
     }
 
+    public List<Long> getPdNoListFromPushDevice(PushDevice pushDeviceVO) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPdNoListFromPushDevice", pushDeviceVO);
+    }
+
     public int countPushDeviceByCriteria(PushDevice pushDeviceVO) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.countPushDeviceByCriteria", pushDeviceVO);
     }
@@ -42,8 +46,13 @@ public class PushManageDAO {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoByAppCodeAndNotiCode", params);
     }
 
+
     public String getRegPushNoti(PushNotiInfo pniv) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getRegPushNoti", pniv);
+    }
+
+    public List<Long> getPushInfoNoListByAppCodeAndNotiCode(Map<String, Object> params) {
+        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoListByAppCodeAndNotiCode", params);
     }
 
     public List<PushNotiInfo> getPushNotiInfoList(PushDevice pdv) {
@@ -52,6 +61,10 @@ public class PushManageDAO {
 
     public List<PushHist> getPushHistList(PushHist phv) {
         return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushHistList", phv);
+    }
+
+    public List<PushHist> selectPushHistWithAssociations(PushHist criteria) {
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.selectPushHistWithAssociations", criteria);
     }
 
     public List<PushHist> getTargetResendList(PushHist phv) {

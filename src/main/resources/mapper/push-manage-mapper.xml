@@ -2,16 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.wishtarot.mnspushapi.mapper.PushManageMapper">
 
-    <resultMap type="pushHistVO" id="pushHistMap">
-        <result property="histSeq" column="HIST_SEQ"/>
-        <result property="custId" column="CUST_ID"/>
-        <result property="message" column="MESSAGE"/>
-        <result property="sendDt" column="SEND_DT"/>
-        <result property="appCode" column="APP_CODE"/>
-        <result property="notiCode" column="NOTI_CODE"/>
-        <result property="receiveSuccesYn" column="RECEIVE_SUCCES_YN"/>
-    </resultMap>
-
     <resultMap type="pushNotiInfoVO" id="pushNotiInfoMap">
         <result property="notiCode" column="NOTI_CODE"/>
         <result property="notiNm" column="NOTI_NM"/>
@@ -31,6 +21,50 @@
         <result property="pushInfoNo" column="push_info_no"/>
         <result property="regDt" column="reg_dt"/>
     </resultMap>
+
+    <resultMap id="PushHistResultMap" type="kr.wishtarot.mnspushapi.domain.PushHist">
+        <!-- Mapping push_hist columns -->
+        <id property="histNo" column="hist_no"/>
+        <result property="pnrNo" column="pnr_no"/>
+        <result property="title" column="title" javaType="String"/>
+        <result property="message" column="message" javaType="String"/>
+        <result property="sendDt" column="send_dt" javaType="java.time.LocalDateTime"/>
+        <result property="sendSuccessYn" column="send_success_yn" javaType="String"/>
+        <result property="sendError" column="send_error" javaType="String"/>
+
+        <!-- Association with PushNotiReg -->
+        <association property="pushNotiReg" javaType="pushNotiRegVO">
+            <id property="pnrNo" column="pnr_no"/>
+            <result property="pdNo" column="pd_no"/>
+            <result property="pushInfoNo" column="push_info_no"/>
+            <result property="regDt" column="pnr_reg_dt"/>
+        </association>
+
+        <!-- Association with PushDevice -->
+        <association property="pushDevice" javaType="pushDeviceVO">
+            <id property="pdNo" column="pd_no"/>
+            <result property="deviceType" column="device_type"/>
+            <result property="deviceId" column="device_id"/>
+            <result property="custId" column="cust_id"/>
+            <result property="regDt" column="pd_reg_dt"/>
+        </association>
+
+        <!-- Association with PushInfo -->
+        <association property="pushInfo" javaType="pushInfoVO">
+            <id property="pushInfoNo" column="push_info_no"/>
+            <result property="pushAppNo" column="push_app_no"/>
+            <result property="notiCode" column="noti_code"/>
+            <result property="notiNm" column="noti_nm"/>
+        </association>
+
+        <!-- Association with AppInfo -->
+        <association property="appInfo" javaType="appInfoVO">
+            <id property="pushAppNo" column="push_app_no"/>
+            <result property="appCode" column="app_code"/>
+            <result property="appNm" column="app_nm"/>
+        </association>
+    </resultMap>
+
 
     <select id="selectPushDevice" parameterType="pushDeviceVO" resultType="kr.wishtarot.mnspushapi.domain.PushDevice">
         SELECT *
@@ -55,6 +89,21 @@
         FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
+        <if test="custId != null and custId != ''">
+            AND cust_id = #{custId}
+        </if>
+    </select>
+
+    <select id="getPdNoListFromPushDevice" parameterType="pushDeviceVO" resultType="java.util.List">
+        SELECT pd_no
+        FROM push_device
+        WHERE DEVICE_TYPE = #{deviceType}
+        <if test="deviceId != null and deviceId != ''">
+            AND DEVICE_ID = #{deviceId}
+        </if>
+        <if test="custId != null and custId != ''">
+            AND cust_id = #{custId}
+        </if>
     </select>
 
     <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
@@ -77,6 +126,14 @@
     </select>
 
     <select id="getPushInfoNoByAppCodeAndNotiCode" parameterType="map" resultType="java.lang.Long">
+        SELECT pi.push_info_no
+        FROM push_info pi
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE ai.app_code = #{appCode}
+        AND pi.noti_code = #{notiCode}
+    </select>
+
+    <select id="getPushInfoNoListByAppCodeAndNotiCode" parameterType="map" resultType="java.util.List">
         SELECT pi.push_info_no
         FROM push_info pi
         JOIN app_info ai ON pi.push_app_no = ai.push_app_no
@@ -162,54 +219,48 @@
         AND push_info_no = #{pushInfoNo}
     </delete>
 
-    <select id="getPushHistList" parameterType="pushHistVO" resultMap="pushHistMap">
-        SELECT HIST_SEQ, CUST_ID,
-        MESSAGE, DATE_FORMAT(SEND_DT, '%Y%m%d%H%i%s') AS SEND_DT,
-        APP_CODE, NOTI_CODE,
-        COALESCE(RECEIVE_SUCCES_YN, 'N') AS RECEIVE_SUCCES_YN
-        FROM TBFF_PUSH_HIST
-        WHERE DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{deviceId}
-        AND SEND_SUCCES_YN = 'Y'
-        <if test="appCode != null and appCode != ''">
-            AND APP_CODE = #{appCode}
+    <select id="selectPushHistWithAssociations" resultMap="PushHistResultMap">
+        SELECT
+        ph.hist_no, ph.pnr_no, ph.title, ph.message, ph.send_dt, ph.send_success_yn, ph.send_error,
+        pnr.pnr_no, pnr.pd_no, pnr.push_info_no, pnr.reg_dt AS pnr_reg_dt,
+        pd.pd_no, pd.device_type, pd.device_id, pd.cust_id, pd.reg_dt AS pd_reg_dt,
+        pi.push_info_no, pi.push_app_no, pi.noti_code, pi.noti_nm,
+        ai.push_app_no, ai.app_code, ai.app_nm
+        FROM push_hist ph
+        JOIN push_noti_reg pnr ON ph.pnr_no = pnr.pnr_no
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        JOIN push_info pi ON pnr.push_info_no = pi.push_info_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE 1=1
+        <!-- 조건: deviceType -->
+        <if test="deviceType != null and deviceType != ''">
+            AND pd.device_type LIKE CONCAT('%', #{deviceType}, '%')
         </if>
-        <if test="receiveSuccesYn == 'Y'">
-            AND RECEIVE_SUCCES_YN = 'Y'
-        </if>
-        <if test="receiveSuccesYn == 'N'">
-            AND RECEIVE_SUCCES_YN IS NULL
-        </if>
-        <if test="qryStartDt != null and qryStartDt != ''">
-            AND DATE_FORMAT(SEND_DT, '%Y%m%d') <![CDATA[>=]]> #{qryStartDt}
-        </if>
-        ORDER BY SEND_DT DESC
-    </select>
-
-    <select id="getTargetResendList" parameterType="pushHistVO" resultMap="pushHistMap">
-        SELECT HIST_SEQ, CUST_ID,
-        MESSAGE, DATE_FORMAT(SEND_DT, '%Y%m%d%H%i%s') AS SEND_DT,
-        APP_CODE, NOTI_CODE,
-        COALESCE(RECEIVE_SUCCES_YN, 'N') AS RECEIVE_SUCCES_YN
-        FROM TBFF_PUSH_HIST
-        WHERE DEVICE_TYPE = #{deviceType}
-        AND RECEIVE_SUCCES_YN IS NULL
-        <if test="appCode != null and appCode != ''">
-            AND APP_CODE = #{appCode}
-        </if>
-        <if test="notiCode != null and notiCode != ''">
-            AND NOTI_CODE = #{notiCode}
-        </if>
-        <if test="custId != null and custId != ''">
-            AND CUST_ID = #{custId}
-        </if>
+        <!-- 조건: deviceId -->
         <if test="deviceId != null and deviceId != ''">
-            AND DEVICE_ID = #{deviceId}
+            AND pd.device_id LIKE CONCAT('%', #{deviceId}, '%')
         </if>
-        <if test="qryStartDt != null and qryStartDt != ''">
-            AND DATE_FORMAT(SEND_DT, '%Y%m%d') <![CDATA[>=]]> #{qryStartDt}
+        <!-- 조건: custId -->
+        <if test="custId != null and custId != ''">
+            AND pd.cust_id LIKE CONCAT('%', #{custId}, '%')
         </if>
-        ORDER BY SEND_DT DESC
+        <!-- 조건: appCode -->
+        <if test="appCode != null and appCode != ''">
+            AND ai.app_code LIKE CONCAT('%', #{appCode}, '%')
+        </if>
+        <!-- 조건: notiCode -->
+        <if test="notiCode != null and notiCode != ''">
+            AND pi.noti_code LIKE CONCAT('%', #{notiCode}, '%')
+        </if>
+        <!-- 조건: sendSuccessYn -->
+        <if test="sendSuccessYn != null and sendSuccessYn != ''">
+            AND ph.send_success_yn = #{sendSuccessYn}
+        </if>
+        <!-- 조건: sendDt -->
+        <if test="sendDt != null">
+            AND ph.send_dt >= #{sendDt}
+        </if>
+        ORDER BY ph.send_dt DESC
     </select>
 
     <select id="getPushNotiInfoList" parameterType="pushDeviceVO" resultMap="pushNotiInfoMap">

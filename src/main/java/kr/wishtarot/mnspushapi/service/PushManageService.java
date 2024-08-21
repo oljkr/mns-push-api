@@ -1,5 +1,9 @@
 package kr.wishtarot.mnspushapi.service;
 
+import kr.wishtarot.mnspushapi.domain.PushHist;
+
+import java.util.List;
+
 public interface PushManageService {
 
     /**
@@ -50,12 +54,21 @@ public interface PushManageService {
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
      * @param deviceId 디바이스 ID (Private Push의 경우 회원 ID)
      * @param appCode (선택적) 앱 코드 (패키지 이름)
-     * @param receiveSuccesYn (선택적) 전송 성공 여부 ('Y' or 'N')
+     * @param sendSuccesYn (선택적) 전송 성공 여부 ('Y' or 'N')
      * @param qryStartDt (선택적) 요청 날짜부터 최근일까지의 데이터 조회 (형식: LocalDateTime)
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      * @throws Exception 예외 발생 시 예외를 던집니다.
      */
-    String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception;
+    String getPushHistListAsJson(String deviceType, String deviceId, String custId, String appCode, String notiCode, String sendSuccesYn, String qryStartDt) throws Exception;
+
+    public List<PushHist> getPushHistWithAssociations(
+            String deviceType,
+            String deviceId,
+            String custId,
+            String appCode,
+            String notiCode,
+            String sendSuccessYn,
+            String sendDt) throws Exception;
 
     /**
      * 단말기로부터 Feedback이 되지 않은 Push 알림 이력(재전송 대상) 목록을 JSON 형식으로 조회합니다.

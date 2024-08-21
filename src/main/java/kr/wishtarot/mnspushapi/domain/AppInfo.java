@@ -2,12 +2,14 @@ package kr.wishtarot.mnspushapi.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.ibatis.type.Alias;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 @Data
 @Builder
+@Alias("appInfoVO")
 public class AppInfo {
 
     private Long pushAppNo; // push_app_no 컬럼에 해당하는 필드

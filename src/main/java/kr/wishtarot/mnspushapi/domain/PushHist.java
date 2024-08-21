@@ -1,7 +1,9 @@
 package kr.wishtarot.mnspushapi.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -10,6 +12,8 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PushHist {
 
     private Long histNo; // hist_no 컬럼에 해당하는 필드
@@ -31,4 +35,17 @@ public class PushHist {
 
     @Size(max = 200)
     private String sendError; // send_error 컬럼에 해당하는 필드
+
+    // Associated objects (연관된 테이블의 데이터)
+    private PushNotiReg pushNotiReg;
+    private PushDevice pushDevice;
+    private PushInfo pushInfo;
+    private AppInfo appInfo;
+
+    // 검색 조건 필드 (옵션)
+    private String deviceType;
+    private String deviceId;
+    private String custId;
+    private String appCode;
+    private String notiCode;
 }

@@ -2,12 +2,15 @@ package kr.wishtarot.mnspushapi.domain;
 
 import lombok.Builder;
 import lombok.Data;
+import org.apache.ibatis.type.Alias;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import javax.validation.constraints.Pattern;
 
 @Data
 @Builder
+@Alias("pushNotiInfoVO")
 public class PushNotiInfo {
 
     @NotNull

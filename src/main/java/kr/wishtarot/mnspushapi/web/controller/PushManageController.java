@@ -1,5 +1,6 @@
 package kr.wishtarot.mnspushapi.web.controller;
 
+import kr.wishtarot.mnspushapi.domain.PushHist;
 import kr.wishtarot.mnspushapi.service.impl.PushManageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -7,6 +8,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/push-notifications")
@@ -94,18 +99,37 @@ public class PushManageController {
      * @param qryStartDt (선택적) 요청 날짜부터 최근일까지의 데이터 조회 (형식: YYYYMMDD)
      * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
      */
+//    @GetMapping("/notifications/history")
+//    public ResponseEntity<String> getPushHistory(@RequestParam(required = false) String deviceType,
+//                                                 @RequestParam(required = false) String deviceId,
+//                                                 @RequestParam(required = false) String custId,
+//                                                 @RequestParam(required = false) String appCode,
+//                                                 @RequestParam(required = false) String notiCode,
+//                                                 @RequestParam(required = false) String sendSuccesYn,
+//                                                 @RequestParam(required = false) String qryStartDt) {
+//        try {
+//            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, custId, appCode, notiCode, sendSuccesYn, qryStartDt));
+//        } catch (Exception e) {
+//            return handleException(e, "Error in getPushHistory");
+//        }
+//    }
+
     @GetMapping("/notifications/history")
-    public ResponseEntity<String> getPushHistory(@RequestParam String deviceType,
-                                                 @RequestParam String deviceId,
-                                                 @RequestParam String custId,
-                                                 @RequestParam(required = false) String appCode,
-                                                 @RequestParam(required = false) String notiCode,
-                                                 @RequestParam(required = false) String receiveSuccesYn,
-                                                 @RequestParam(required = false) String qryStartDt) {
+    public ResponseEntity<?> getPushHistory(
+            @RequestParam(value = "deviceType", required = false) String deviceType,
+            @RequestParam(value = "deviceId", required = false) String deviceId,
+            @RequestParam(value = "custId", required = false) String custId,
+            @RequestParam(value = "appCode", required = false) String appCode,
+            @RequestParam(value = "notiCode", required = false) String notiCode,
+            @RequestParam(value = "sendSuccessYn", required = false) String sendSuccessYn,
+            @RequestParam(value = "sendDt", required = false) String sendDt) {
+
         try {
-            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, appCode, receiveSuccesYn, qryStartDt));
+            List<PushHist> pushHistList = pushManageService.getPushHistWithAssociations(
+                    deviceType, deviceId, custId, appCode, notiCode, sendSuccessYn, sendDt);
+            return ResponseEntity.ok(pushHistList);
         } catch (Exception e) {
-            return handleException(e, "Error in getPushHistory");
+            return handleJsonException(e, "Error in getPushHistory");
         }
     }
 
@@ -234,4 +258,18 @@ public class PushManageController {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("[FAIL] " + errorMessage + ": " + e.getMessage());
     }
 
+    // JSON 형식으로 예외 처리 메서드
+    private ResponseEntity<Map<String, Object>> handleJsonException(Exception e, String errorMessage) {
+        logger.error("{}: {}", errorMessage, e.getMessage(), e);
+
+        // JSON 응답을 위한 Map 생성
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        errorResponse.put("error", "Internal Server Error");
+        errorResponse.put("message", errorMessage + ": " + e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    }
 }
+
+
