@@ -47,16 +47,8 @@ public class PushManageDAO {
     }
 
 
-    public String getRegPushNoti(PushNotiInfo pniv) {
-        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getRegPushNoti", pniv);
-    }
-
     public List<Long> getPushInfoNoListByAppCodeAndNotiCode(Map<String, Object> params) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoListByAppCodeAndNotiCode", params);
-    }
-
-    public List<PushNotiInfo> getPushNotiInfoList(PushDevice pdv) {
-        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushNotiInfoList", pdv);
     }
 
     public List<PushHist> getPushHistList(PushHist phv) {
@@ -71,10 +63,6 @@ public class PushManageDAO {
         return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getTargetResendList", phv);
     }
 
-    public List<PushDevice> getCustIdList(PushDeviceReg pdrv) {
-        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getCustIdList", pdrv);
-    }
-
     public int insertPushDevice(PushDevice pdv) {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushDevice", pdv);
     }
@@ -83,16 +71,8 @@ public class PushManageDAO {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushDevice", pdv);
     }
 
-    public int insertPushDeviceReg(PushDeviceReg pdrv) {
-        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushDeviceReg", pdrv);
-    }
-
     public int insertPushNotiReg(PushNotiReg pnrv) {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushNotiReg", pnrv);
-    }
-
-    public int deletePushDeviceReg(PushDeviceReg pdrv) {
-        return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushDeviceReg", pdrv);
     }
 
     public int deletePushNotiReg(PushNotiReg pnrv) {

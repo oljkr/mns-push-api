@@ -6,6 +6,7 @@ import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.apache.ibatis.type.StringTypeHandler;
 
 import javax.sql.DataSource;
 @Configuration
@@ -22,13 +23,13 @@ public class MyBatisConfig {
         configuration.setMapUnderscoreToCamelCase(true);
 
         // 타입 별칭 등록
-        configuration.getTypeAliasRegistry().registerAlias("pushNotiInfoVO", kr.wishtarot.mnspushapi.domain.PushNotiInfo.class);
         configuration.getTypeAliasRegistry().registerAlias("pushDeviceVO", kr.wishtarot.mnspushapi.domain.PushDevice.class);
         configuration.getTypeAliasRegistry().registerAlias("pushNotiRegVO", kr.wishtarot.mnspushapi.domain.PushNotiReg.class);
         configuration.getTypeAliasRegistry().registerAlias("pushInfoVO", kr.wishtarot.mnspushapi.domain.PushInfo.class);
         configuration.getTypeAliasRegistry().registerAlias("appInfoVO", kr.wishtarot.mnspushapi.domain.AppInfo.class);
-        configuration.getTypeAliasRegistry().registerAlias("pushDeviceRegVO", kr.wishtarot.mnspushapi.domain.PushDeviceReg.class);
         configuration.getTypeAliasRegistry().registerAlias("tmpPushDeviceVO", kr.wishtarot.mnspushapi.domain.TmpPushDevice.class);
+
+        configuration.getTypeHandlerRegistry().register(String.class, StringTypeHandler.class);
 
         sessionFactory.setConfiguration(configuration);
 

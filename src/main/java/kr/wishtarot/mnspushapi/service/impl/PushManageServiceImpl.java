@@ -118,10 +118,6 @@ public class PushManageServiceImpl implements PushManageService {
         return (pushDeviceResult > 0) ? "[SUCCESS]" : "[FAIL]";
     }
 
-    private String getRegPushNoti(String appCode, String notiCode) throws Exception {
-        PushNotiInfo pushNotiInfo = createPushNotiInfo(appCode, notiCode);
-        return pushManageDAO.getRegPushNoti(pushNotiInfo);
-    }
 
 //    @Override
 //    public String getPushHistListAsJson(String deviceType, String deviceId, String appCode, String receiveSuccesYn, String qryStartDt) throws Exception {
@@ -200,6 +196,10 @@ public class PushManageServiceImpl implements PushManageService {
                 .sendSuccessYn(sendSuccessYn)
                 .sendDt(parsedSendDt)  // 여기서는 sendDt를 다시 파싱하지 않음
                 .build();
+//        PushHist criteria = PushHist.builder()
+//                .sendSuccessYn(sendSuccessYn)
+//                .sendDt(parsedSendDt)  // 여기서는 sendDt를 다시 파싱하지 않음
+//                .build();
 
         return pushManageDAO.selectPushHistWithAssociations(criteria);
     }
@@ -226,13 +226,6 @@ public class PushManageServiceImpl implements PushManageService {
 //        List<PushDevice> pushDeviceList = pushManageDAO.getPushDeviceList(pushDevice);
 //        return objectMapper.writeValueAsString(pushDeviceList);
 //    }
-
-    @Override
-    public String getCustIdListAsJson(String deviceType, String appCode, String notiCode) throws Exception {
-        PushDeviceReg pushDeviceReg = createPushDeviceReg(appCode, notiCode, deviceType, null);
-        List<PushDevice> custIdList = pushManageDAO.getCustIdList(pushDeviceReg);
-        return objectMapper.writeValueAsString(custIdList);
-    }
 
     @Override
     public String updateDeviceIds(String appCode, String deviceType, String oldDeviceId, String newDeviceId) throws Exception {
@@ -300,14 +293,6 @@ public class PushManageServiceImpl implements PushManageService {
 //                .build();
 //    }
 
-    private PushDeviceReg createPushDeviceReg(String appCode, String notiCode, String deviceType, String deviceId) {
-        return PushDeviceReg.builder()
-                .appCode(appCode)
-                .notiCode(notiCode)
-                .deviceType(deviceType)
-                .deviceId(deviceId)
-                .build();
-    }
 
     private PushNotiReg createPushNotiReg(Long pnrNo, Long pdNo, Long pushInfoNo, LocalDateTime regDt) {
         return PushNotiReg.builder()
@@ -315,13 +300,6 @@ public class PushManageServiceImpl implements PushManageService {
                 .pdNo(pdNo)
                 .pushInfoNo(pushInfoNo)
                 .regDt(regDt)
-                .build();
-    }
-
-    private PushNotiInfo createPushNotiInfo(String appCode, String notiCode) {
-        return PushNotiInfo.builder()
-                .appCode(appCode)
-                .notiCode(notiCode)
                 .build();
     }
 

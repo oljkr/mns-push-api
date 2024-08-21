@@ -2,12 +2,6 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="kr.wishtarot.mnspushapi.mapper.PushManageMapper">
 
-    <resultMap type="pushNotiInfoVO" id="pushNotiInfoMap">
-        <result property="notiCode" column="NOTI_CODE"/>
-        <result property="notiNm" column="NOTI_NM"/>
-        <result property="isSetting" column="IS_SETTING"/>
-    </resultMap>
-
     <resultMap type="pushDeviceVO" id="pushDeviceMap">
         <result property="deviceType" column="DEVICE_TYPE"/>
         <result property="deviceId" column="DEVICE_ID"/>
@@ -22,48 +16,41 @@
         <result property="regDt" column="reg_dt"/>
     </resultMap>
 
+
     <resultMap id="PushHistResultMap" type="kr.wishtarot.mnspushapi.domain.PushHist">
-        <!-- Mapping push_hist columns -->
         <id property="histNo" column="hist_no"/>
         <result property="pnrNo" column="pnr_no"/>
-        <result property="title" column="title" javaType="String"/>
-        <result property="message" column="message" javaType="String"/>
-        <result property="sendDt" column="send_dt" javaType="java.time.LocalDateTime"/>
-        <result property="sendSuccessYn" column="send_success_yn" javaType="String"/>
-        <result property="sendError" column="send_error" javaType="String"/>
+        <result property="title" column="title"/>
+        <result property="message" column="message"/>
+        <result property="sendDt" column="send_dt"/>
+        <result property="sendSuccessYn" column="send_success_yn"/>
+        <result property="sendError" column="send_error"/>
 
-        <!-- Association with PushNotiReg -->
-        <association property="pushNotiReg" javaType="pushNotiRegVO">
-            <id property="pnrNo" column="pnr_no"/>
-            <result property="pdNo" column="pd_no"/>
-            <result property="pushInfoNo" column="push_info_no"/>
-            <result property="regDt" column="pnr_reg_dt"/>
-        </association>
+        <!-- PushNotiReg properties -->
+        <result property="pushNotiReg.pnrNo" column="pushNotiReg_pnrNo"/>
+        <result property="pushNotiReg.pdNo" column="pushNotiReg_pdNo"/>
+        <result property="pushNotiReg.pushInfoNo" column="pushNotiReg_pushInfoNo"/>
+        <result property="pushNotiReg.regDt" column="pushNotiReg_regDt"/>
 
-        <!-- Association with PushDevice -->
-        <association property="pushDevice" javaType="pushDeviceVO">
-            <id property="pdNo" column="pd_no"/>
-            <result property="deviceType" column="device_type"/>
-            <result property="deviceId" column="device_id"/>
-            <result property="custId" column="cust_id"/>
-            <result property="regDt" column="pd_reg_dt"/>
-        </association>
+        <!-- PushDevice properties -->
+        <result property="pushDevice.pdNo" column="pushDevice_pdNo"/>
+        <result property="pushDevice.deviceType" column="pushDevice_deviceType"/>
+        <result property="pushDevice.deviceId" column="pushDevice_deviceId"/>
+        <result property="pushDevice.custId" column="pushDevice_custId"/>
+        <result property="pushDevice.regDt" column="pushDevice_regDt"/>
 
-        <!-- Association with PushInfo -->
-        <association property="pushInfo" javaType="pushInfoVO">
-            <id property="pushInfoNo" column="push_info_no"/>
-            <result property="pushAppNo" column="push_app_no"/>
-            <result property="notiCode" column="noti_code"/>
-            <result property="notiNm" column="noti_nm"/>
-        </association>
+        <!-- PushInfo properties -->
+        <result property="pushInfo.pushInfoNo" column="pushInfo_pushInfoNo"/>
+        <result property="pushInfo.pushAppNo" column="pushInfo_pushAppNo"/>
+        <result property="pushInfo.notiCode" column="pushInfo_notiCode"/>
+        <result property="pushInfo.notiNm" column="pushInfo_notiNm"/>
 
-        <!-- Association with AppInfo -->
-        <association property="appInfo" javaType="appInfoVO">
-            <id property="pushAppNo" column="push_app_no"/>
-            <result property="appCode" column="app_code"/>
-            <result property="appNm" column="app_nm"/>
-        </association>
+        <!-- AppInfo properties -->
+        <result property="appInfo.pushAppNo" column="appInfo_pushAppNo"/>
+        <result property="appInfo.appCode" column="appInfo_appCode"/>
+        <result property="appInfo.appNm" column="appInfo_appNm"/>
     </resultMap>
+
 
 
     <select id="selectPushDevice" parameterType="pushDeviceVO" resultType="kr.wishtarot.mnspushapi.domain.PushDevice">
@@ -181,36 +168,12 @@
         </if>
     </delete>
 
-
-    <select id="getRegPushNoti" parameterType="pushNotiInfoVO" resultType="String">
-        SELECT NOTI_CODE
-        FROM TBFF_PUSH_NOTIINFO
-        WHERE APP_CODE = #{appCode}
-        AND NOTI_CODE = #{notiCode}
-    </select>
-
-    <insert id="insertPushDeviceReg" parameterType="pushDeviceRegVO">
-        INSERT INTO TBFF_PUSH_DEVICEREG
-        (APP_CODE, NOTI_CODE, DEVICE_TYPE, DEVICE_ID, REG_DT)
-        VALUES
-        (#{appCode}, #{notiCode}, #{deviceType}, #{deviceId}, NOW())
-    </insert>
-
     <insert id="insertPushNotiReg" parameterType="pushNotiRegVO">
         INSERT INTO push_noti_reg
         (pd_no, push_info_no, reg_dt)
         VALUES
         (#{pdNo}, #{pushInfoNo}, NOW())
     </insert>
-
-    <delete id="deletePushDeviceReg" parameterType="pushDeviceRegVO">
-        DELETE
-        FROM TBFF_PUSH_DEVICEREG
-        WHERE APP_CODE = #{appCode}
-        AND NOTI_CODE = #{notiCode}
-        AND DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{deviceId}
-    </delete>
 
     <delete id="deletePushNotiReg" parameterType="pushNotiRegVO">
         DELETE
@@ -222,10 +185,10 @@
     <select id="selectPushHistWithAssociations" resultMap="PushHistResultMap">
         SELECT
         ph.hist_no, ph.pnr_no, ph.title, ph.message, ph.send_dt, ph.send_success_yn, ph.send_error,
-        pnr.pnr_no, pnr.pd_no, pnr.push_info_no, pnr.reg_dt AS pnr_reg_dt,
-        pd.pd_no, pd.device_type, pd.device_id, pd.cust_id, pd.reg_dt AS pd_reg_dt,
-        pi.push_info_no, pi.push_app_no, pi.noti_code, pi.noti_nm,
-        ai.push_app_no, ai.app_code, ai.app_nm
+        pnr.pnr_no AS pushNotiReg_pnrNo, pnr.pd_no AS pushNotiReg_pdNo, pnr.push_info_no AS pushNotiReg_pushInfoNo, pnr.reg_dt AS pushNotiReg_regDt,
+        pd.pd_no AS pushDevice_pdNo, pd.device_type AS pushDevice_deviceType, pd.device_id AS pushDevice_deviceId, pd.cust_id AS pushDevice_custId, pd.reg_dt AS pushDevice_regDt,
+        pi.push_info_no AS pushInfo_pushInfoNo, pi.push_app_no AS pushInfo_pushAppNo, pi.noti_code AS pushInfo_notiCode, pi.noti_nm AS pushInfo_notiNm,
+        ai.push_app_no AS appInfo_pushAppNo, ai.app_code AS appInfo_appCode, ai.app_nm AS appInfo_appNm
         FROM push_hist ph
         JOIN push_noti_reg pnr ON ph.pnr_no = pnr.pnr_no
         JOIN push_device pd ON pnr.pd_no = pd.pd_no
@@ -263,19 +226,6 @@
         ORDER BY ph.send_dt DESC
     </select>
 
-    <select id="getPushNotiInfoList" parameterType="pushDeviceVO" resultMap="pushNotiInfoMap">
-        SELECT A.NOTI_CODE, A.NOTI_NM,
-        IF(B.NOTI_CODE IS NULL, 'N', 'Y') AS IS_SETTING
-        FROM (SELECT APP_CODE, NOTI_CODE, NOTI_NM
-        FROM TBFF_PUSH_NOTIINFO
-        WHERE APP_CODE = #{appCode}) A
-        LEFT JOIN TBFF_PUSH_DEVICEREG B
-        ON A.APP_CODE = B.APP_CODE
-        AND A.NOTI_CODE = B.NOTI_CODE
-        AND B.DEVICE_TYPE = #{deviceType}
-        AND B.DEVICE_ID = #{deviceId}
-        ORDER BY NOTI_CODE
-    </select>
 
     <select id="getPushDeviceList" parameterType="pushDeviceVO" resultMap="pushDeviceMap">
         SELECT DEVICE_TYPE, DEVICE_ID, CUST_ID, APP_CODE
@@ -285,17 +235,6 @@
         AND APP_CODE = #{appCode}
     </select>
 
-    <select id="getCustIdList" parameterType="pushDeviceRegVO" resultMap="pushDeviceMap">
-        SELECT A.DEVICE_TYPE, A.DEVICE_ID, A.CUST_ID, A.APP_CODE
-        FROM TBFF_PUSH_DEVICE A
-        JOIN TBFF_PUSH_DEVICEREG B
-        ON A.DEVICE_TYPE = B.DEVICE_TYPE
-        AND A.DEVICE_ID = B.DEVICE_ID
-        AND A.APP_CODE = B.APP_CODE
-        WHERE A.DEVICE_TYPE = #{deviceType}
-        AND A.APP_CODE = #{appCode}
-        AND B.NOTI_CODE = #{notiCode}
-    </select>
 
     <update id="updatePushDevice" parameterType="tmpPushDeviceVO">
         UPDATE TBFF_PUSH_DEVICE
@@ -303,14 +242,6 @@
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{oldDeviceId}
         AND APP_CODE = #{appCode}
-    </update>
-
-    <update id="updatePushDeviceReg" parameterType="tmpPushDeviceVO">
-        UPDATE TBFF_PUSH_DEVICEREG
-        SET DEVICE_ID = #{newDeviceId}, REG_DT = NOW()
-        WHERE APP_CODE = #{appCode}
-        AND DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{oldDeviceId}
     </update>
 
     <update id="updateReceiveSuccess" parameterType="long">

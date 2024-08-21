@@ -107,17 +107,6 @@ public interface PushManageService {
 //    String getPushDeviceListAsJson(String appCode, String deviceType, String custId) throws Exception;
 
     /**
-     * 특정 알림 코드가 등록된 회원ID 목록을 JSON 형식으로 조회합니다.
-     *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS, '99': Private Push)
-     * @param appCode 앱 코드 (패키지 이름)
-     * @param notiCode 알림 코드
-     * @return 회원 ID 목록을 JSON 형식으로 반환합니다.
-     * @throws Exception 예외 발생 시 예외를 던집니다.
-     */
-    String getCustIdListAsJson(String deviceType, String appCode, String notiCode) throws Exception;
-
-    /**
      * 디바이스 ID를 수정합니다.
      *
      * @param appCode 앱 코드 (패키지 이름)

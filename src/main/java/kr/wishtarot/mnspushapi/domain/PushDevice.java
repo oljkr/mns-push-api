@@ -1,7 +1,9 @@
 package kr.wishtarot.mnspushapi.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.apache.ibatis.type.Alias;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +13,8 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 @Alias("pushDeviceVO")
+@NoArgsConstructor
+@AllArgsConstructor
 public class PushDevice {
 
     private Long pdNo; // pd_no 컬럼에 해당하는 필드 추가

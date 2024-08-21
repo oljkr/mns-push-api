@@ -50,7 +50,6 @@ public class PushManageController {
      * @param mode 'reg' 등록, 'del' 삭제
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
      * @param deviceId 디바이스 ID
-     * @param appCode 앱 코드 (패키지 이름)
      * @param custId 고객 ID (등록 시 필수)
      * @return HTTP 응답 상태와 결과 메시지
      */
@@ -92,28 +91,8 @@ public class PushManageController {
     /**
      * 전송된 Push 알림 이력 목록을 조회합니다.
      *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param deviceId 디바이스 ID
-     * @param appCode (선택적) 앱 코드 (패키지 이름)
-     * @param receiveSuccesYn (선택적) 전송 성공 여부 ('Y' or 'N')
-     * @param qryStartDt (선택적) 요청 날짜부터 최근일까지의 데이터 조회 (형식: YYYYMMDD)
-     * @return 알림 이력 목록을 JSON 형식으로 반환합니다.
+     *
      */
-//    @GetMapping("/notifications/history")
-//    public ResponseEntity<String> getPushHistory(@RequestParam(required = false) String deviceType,
-//                                                 @RequestParam(required = false) String deviceId,
-//                                                 @RequestParam(required = false) String custId,
-//                                                 @RequestParam(required = false) String appCode,
-//                                                 @RequestParam(required = false) String notiCode,
-//                                                 @RequestParam(required = false) String sendSuccesYn,
-//                                                 @RequestParam(required = false) String qryStartDt) {
-//        try {
-//            return ResponseEntity.ok(pushManageService.getPushHistListAsJson(deviceType, deviceId, custId, appCode, notiCode, sendSuccesYn, qryStartDt));
-//        } catch (Exception e) {
-//            return handleException(e, "Error in getPushHistory");
-//        }
-//    }
-
     @GetMapping("/notifications/history")
     public ResponseEntity<?> getPushHistory(
             @RequestParam(value = "deviceType", required = false) String deviceType,
@@ -198,24 +177,6 @@ public class PushManageController {
         }
     }
 
-    /**
-     * 특정 알림 코드가 등록된 회원ID 목록을 조회합니다.
-     *
-     * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)
-     * @param appCode 앱 코드 (패키지 이름)
-     * @param notiCode 알림 코드
-     * @return 회원 ID 목록을 JSON 형식으로 반환합니다.
-     */
-    @GetMapping("/customer/list")
-    public ResponseEntity<String> getCustomerList(@RequestParam String deviceType,
-                                                  @RequestParam String appCode,
-                                                  @RequestParam String notiCode) {
-        try {
-            return ResponseEntity.ok(pushManageService.getCustIdListAsJson(deviceType, appCode, notiCode));
-        } catch (Exception e) {
-            return handleException(e, "Error in getCustomerList");
-        }
-    }
 
     /**
      * 디바이스 ID를 수정합니다.
