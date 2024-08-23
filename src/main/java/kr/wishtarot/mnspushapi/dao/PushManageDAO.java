@@ -18,10 +18,6 @@ public class PushManageDAO {
         this.sqlSession = sqlSession;
     }
 
-    public String getCustIdFromPushDevice(PushDevice pushDeviceVO) {
-        return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getCustIdFromPushDevice", pushDeviceVO);
-    }
-
     public Long getPdNoFromPushDevice(PushDevice pushDeviceVO) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPdNoFromPushDevice", pushDeviceVO);
     }
@@ -46,7 +42,6 @@ public class PushManageDAO {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoByAppCodeAndNotiCode", params);
     }
 
-
     public List<Long> getPushInfoNoListByAppCodeAndNotiCode(Map<String, Object> params) {
         return sqlSession.selectOne("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushInfoNoListByAppCodeAndNotiCode", params);
     }
@@ -67,6 +62,30 @@ public class PushManageDAO {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushDevice", pdv);
     }
 
+    public int insertOrUpdatePushDevice(PushDevice pdv) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertOrUpdatePushDevice", pdv);
+    }
+
+    public int updateCustIdByDeviceId(PushDevice pdv) {
+        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdByDeviceId", pdv);
+    }
+
+    public int insertPushNotiRegByDeviceAndCustIdAndAppCode(Map<String, Object> params) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushNotiRegByDeviceAndCustIdAndAppCode", params);
+    }
+
+    public List<Long> selectPnrNoByDeviceAndCustIdAndAppCode(Map<String, Object> params){
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.selectPnrNoByDeviceAndCustIdAndAppCode", params);
+    }
+
+    public int deletePushNotiRegByPnrNoList(Map<String, Object> params){
+        return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushNotiRegByPnrNoList", params);
+    }
+
+    public int updateCustIdToNull(PushDevice pdv) {
+        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdToNull", pdv);
+    }
+
     public int deletePushDevice(PushDevice pdv) {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushDevice", pdv);
     }
@@ -79,24 +98,8 @@ public class PushManageDAO {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushNotiReg", pnrv);
     }
 
-    public int deleteAllPushDeviceReg(PushDevice pdv) {
-        return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deleteAllPushDeviceReg", pdv);
-    }
-
     public int deletePushNotiRegUsingPushDevice(PushDevice pdv) {
         return sqlSession.delete("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deletePushNotiRegUsingPushDevice", pdv);
-    }
-
-    public List<PushDevice> getPushDeviceList(PushDevice pdv) {
-        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getPushDeviceList", pdv);
-    }
-
-    public int updatePushDevice(TmpPushDevice tpdv) {
-        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updatePushDevice", tpdv);
-    }
-
-    public int updatePushDeviceReg(TmpPushDevice tpdv) {
-        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updatePushDeviceReg", tpdv);
     }
 
     public int updateReceiveSuccess(long histSeq) {

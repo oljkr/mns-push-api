@@ -16,7 +16,6 @@
         <result property="regDt" column="reg_dt"/>
     </resultMap>
 
-
     <resultMap id="PushHistResultMap" type="kr.wishtarot.mnspushapi.domain.PushHist">
         <id property="histNo" column="hist_no"/>
         <result property="pnrNo" column="pnr_no"/>
@@ -51,7 +50,15 @@
         <result property="appInfo.appNm" column="appInfo_appNm"/>
     </resultMap>
 
-
+    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
+        SELECT COUNT(*)
+        FROM push_device
+        WHERE DEVICE_TYPE = #{deviceType}
+        AND DEVICE_ID = #{deviceId}
+        <if test="custId != null and custId != ''">
+            AND cust_id = #{custId}
+        </if>
+    </select>
 
     <select id="selectPushDevice" parameterType="pushDeviceVO" resultType="kr.wishtarot.mnspushapi.domain.PushDevice">
         SELECT *
@@ -59,16 +66,6 @@
         WHERE DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
         AND APP_CODE = #{appCode}
-    </select>
-
-    <select id="getCustIdFromPushDevice" parameterType="pushDeviceVO" resultType="String">
-        SELECT CUST_ID
-        FROM TBFF_PUSH_DEVICE
-        WHERE DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{deviceId}
-        <if test="appCode != null and appCode != ''">
-            AND APP_CODE = #{appCode}
-        </if>
     </select>
 
     <select id="getPdNoFromPushDevice" parameterType="pushDeviceVO" resultType="java.lang.Long">
@@ -93,13 +90,6 @@
         </if>
     </select>
 
-    <select id="countPushDeviceByCriteria" parameterType="pushDeviceVO" resultType="int">
-        SELECT COUNT(*)
-        FROM push_device
-        WHERE DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{deviceId}
-    </select>
-
     <select id="countRegAppByCriteria" resultType="int">
         SELECT COUNT(*)
         FROM app_info
@@ -120,13 +110,32 @@
         AND pi.noti_code = #{notiCode}
     </select>
 
-    <select id="getPushInfoNoListByAppCodeAndNotiCode" parameterType="map" resultType="java.util.List">
-        SELECT pi.push_info_no
-        FROM push_info pi
+    <select id="selectPnrNoByDeviceAndCustIdAndAppCode" resultType="long" parameterType="map">
+        SELECT pnr.pnr_no
+        FROM push_noti_reg pnr
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        JOIN push_info pi ON pnr.push_info_no = pi.push_info_no
         JOIN app_info ai ON pi.push_app_no = ai.push_app_no
-        WHERE ai.app_code = #{appCode}
-        AND pi.noti_code = #{notiCode}
+        WHERE pd.device_id = #{deviceId}
+        AND pd.cust_id = #{custId}
+        AND SUBSTRING(pi.noti_code, 2, 1) = 'L'
+        AND ai.app_code = #{app_code};
     </select>
+
+    <delete id="deletePushNotiRegByPnrNoList" parameterType="map">
+        DELETE FROM push_noti_reg
+        WHERE pnr_no IN
+        <foreach item="pnrNo" index="index" collection="pnrNoList" open="(" separator="," close=")">
+            #{pnrNo}
+        </foreach>
+    </delete>
+
+    <update id="updateCustIdToNull" parameterType="pushDeviceVO">
+        UPDATE push_device
+        SET cust_id = NULL
+        WHERE device_id = #{deviceId}
+        AND cust_id = #{custId};
+    </update>
 
     <insert id="insertPushDevice" parameterType="pushDeviceVO">
         INSERT INTO push_device
@@ -141,18 +150,48 @@
         </if>)
     </insert>
 
+    <insert id="insertOrUpdatePushDevice" parameterType="pushDeviceVO">
+        INSERT INTO push_device
+        (DEVICE_TYPE, DEVICE_ID, REG_DT
+        <if test="custId != null">
+            , CUST_ID
+        </if>)
+        VALUES
+        (#{deviceType}, #{deviceId}, NOW()
+        <if test="custId != null">
+            , #{custId}
+        </if>)
+        ON DUPLICATE KEY UPDATE
+        DEVICE_TYPE = VALUES(DEVICE_TYPE),
+        REG_DT = NOW()
+        <if test="custId != null">
+            , CUST_ID = VALUES(CUST_ID)
+        </if>
+    </insert>
+
+    <update id="updateCustIdByDeviceId" parameterType="PushDeviceVO">
+        UPDATE push_device
+        SET cust_id = #{custId}
+        WHERE device_id = #{deviceId}
+    </update>
+
+    <insert id="insertPushNotiRegByDeviceAndCustIdAndAppCode" parameterType="map">
+        INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
+        SELECT pd.pd_no, pi.push_info_no, NOW()
+        FROM push_device pd
+        JOIN push_info pi ON pd.pd_no = pd.pd_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND pd.cust_id = #{custId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 2, 1) = 'L';
+    </insert>
+
+
     <delete id="deletePushDevice" parameterType="pushDeviceVO">
         DELETE
         FROM push_device
         WHERE DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{deviceId}
-    </delete>
-
-    <delete id="deleteAllPushDeviceReg" parameterType="pushDeviceVO">
-        DELETE
-        FROM TBFF_PUSH_DEVICEREG
-        WHERE APP_CODE = #{appCode}
-        AND DEVICE_TYPE = #{deviceType}
         AND DEVICE_ID = #{deviceId}
     </delete>
 
@@ -226,25 +265,7 @@
         ORDER BY ph.send_dt DESC
     </select>
 
-
-    <select id="getPushDeviceList" parameterType="pushDeviceVO" resultMap="pushDeviceMap">
-        SELECT DEVICE_TYPE, DEVICE_ID, CUST_ID, APP_CODE
-        FROM TBFF_PUSH_DEVICE
-        WHERE CUST_ID = #{custId}
-        AND DEVICE_TYPE = #{deviceType}
-        AND APP_CODE = #{appCode}
-    </select>
-
-
-    <update id="updatePushDevice" parameterType="tmpPushDeviceVO">
-        UPDATE TBFF_PUSH_DEVICE
-        SET DEVICE_ID = #{newDeviceId}
-        WHERE DEVICE_TYPE = #{deviceType}
-        AND DEVICE_ID = #{oldDeviceId}
-        AND APP_CODE = #{appCode}
-    </update>
-
-    <update id="updateReceiveSuccess" parameterType="long">
+    <update id="updateReceiveSuccess" parameterType="int">
         UPDATE TBFF_PUSH_HIST
         SET RECEIVE_SUCCES_YN = 'Y'
         WHERE HIST_SEQ = #{histSeq}

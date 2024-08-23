@@ -9,6 +9,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 @Data
 @Builder
@@ -43,9 +45,18 @@ public class PushHist {
     private AppInfo appInfo;
 
     // 검색 조건 필드 (옵션)
+    @JsonIgnore
     private String deviceType;
+
+    @JsonIgnore
     private String deviceId;
+
+    @JsonIgnore
     private String custId;
+
+    @JsonIgnore
     private String appCode;
+
+    @JsonIgnore
     private String notiCode;
 }
