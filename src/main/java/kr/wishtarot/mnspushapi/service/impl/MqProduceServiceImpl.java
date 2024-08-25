@@ -1,5 +1,6 @@
 package kr.wishtarot.mnspushapi.service.impl;
 
+import kr.wishtarot.mnspushapi.config.MqMessageProducer;
 import kr.wishtarot.mnspushapi.config.RabbitMQConfig;
 import kr.wishtarot.mnspushapi.domain.MqMessage;
 import kr.wishtarot.mnspushapi.service.MqProduceService;
@@ -12,54 +13,44 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class MqProduceServiceImpl implements MqProduceService {
 
-    private final RabbitTemplate rabbitTemplate;
-    private final ObjectMapper objectMapper;
+    private final MqMessageProducer mqMessageProducer;
 
     @Autowired
-    public MqProduceServiceImpl(RabbitTemplate rabbitTemplate, ObjectMapper objectMapper) {
-        this.rabbitTemplate = rabbitTemplate;
-        this.objectMapper = objectMapper;
+    public MqProduceServiceImpl(MqMessageProducer mqMessageProducer) {
+        this.mqMessageProducer = mqMessageProducer;
     }
 
-    public String processCommand(String command, String jsonData) throws Exception {
-        if (command == null || command.isEmpty()) {
-            throw new IllegalArgumentException("처리할 COMMAND가 없습니다.");
-        } else if ("PUB_PUSH".equals(command)) {
-            if (jsonData == null || jsonData.isEmpty()) {
-                throw new IllegalArgumentException("There is no Data");
-            }
-            return handleSendAlarmMessage(jsonData);
+    public String processAndSendPushNotification(MqMessage request) throws Exception {
+        // 비즈니스 로직이 여기에 포함될 수 있습니다.
+        // 예를 들어, 데이터 검증, 로깅, 기타 처리 등을 여기서 수행할 수 있습니다.
+
+        // 검증 예시 (간단한 검증 로직)
+        if (request.getTitle() == null || request.getBody() == null) {
+            throw new IllegalArgumentException("Title and Body cannot be null");
+        }
+
+        // queueName을 요청에 따라 설정
+        String queueName;
+        if ("admin".equalsIgnoreCase(request.getQueueName())) {
+            queueName = RabbitMQConfig.ADMIN_QUEUE;
+        } else if ("service".equalsIgnoreCase(request.getQueueName())) {
+            queueName = RabbitMQConfig.SERVICE_QUEUE;
         } else {
-            throw new IllegalArgumentException("처리할 Command가 없습니다");
-        }
-    }
-
-    public String handleSendAlarmMessage(String jsonData) throws Exception {
-        // JSON 데이터를 POJO로 변환
-        MqMessage message = objectMapper.readValue(jsonData, MqMessage.class);
-
-        // 예외 처리 및 검증
-        if (message.getNotiCode() == null || message.getContent() == null) {
-            throw new IllegalArgumentException("Invalid data: notiCode or content is missing");
+            throw new IllegalArgumentException("Invalid queue name: " + request.getQueueName());
         }
 
-//        // 비즈니스 로직을 통해 큐 이름 결정
-//        String queueName;
-//       if (/* some condition for admin */) {
-//           queueName = RabbitMQConfig.ADMIN_QUEUE;
-//       } else if (/* some condition for service */) {
-//           queueName =  RabbitMQConfig.SERVICE_QUEUE;
-//       } else {
-//           throw new IllegalArgumentException("Invalid data: notiCode or content is missing");
-//         }
-//
-//        produceToRabbitMQ(queueName, message);
+        // MQ로 푸쉬 알림 데이터 전송
+        mqMessageProducer.sendPushNotification(
+                queueName,
+                request.getPushInfoNo(),
+                request.getTargetUser(),
+                request.getTitle(),
+                request.getBody(),
+                request.getTargetPage(),
+                request.getMessageId()
+        );
 
-        return "SUCC";
-    }
-
-    private void produceToRabbitMQ(String queueName, MqMessage message) {
-        rabbitTemplate.convertAndSend(queueName, message);
+        return "[SUCCESS]";
     }
 
 }

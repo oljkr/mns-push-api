@@ -1,5 +1,6 @@
 package kr.wishtarot.mnspushapi.web.controller;
 
+import kr.wishtarot.mnspushapi.domain.MqMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,9 @@ public class MqProduceController {
     }
 
     @PostMapping("/produce")
-    public ResponseEntity<String> produceMessage(@RequestParam("command") String command,
-                                                 @RequestParam("almsg") String jsonData) {
+    public ResponseEntity<String> produceMessage(@RequestBody MqMessage mqMessage) {
         try {
-            String resultMsg = mqProduceService.processCommand(command, jsonData);
+            String resultMsg = mqProduceService.processAndSendPushNotification(mqMessage);
             return ResponseEntity.ok(resultMsg);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("FAIL|" + e.getMessage());
