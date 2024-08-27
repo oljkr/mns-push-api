@@ -183,7 +183,18 @@
         JOIN app_info ai ON pi.push_app_no = ai.push_app_no
         WHERE pd.device_id = #{deviceId}
         AND ai.app_code = #{app_code}
-        AND SUBSTRING(pi.noti_code, 2, 1) = 'A';
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'AA';
+    </insert>
+
+    <insert id="insertDefaultMarketingNotification" parameterType="map">
+        INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
+        SELECT pd.pd_no, pi.push_info_no, NOW()
+        FROM push_device pd
+        JOIN push_info pi ON pd.pd_no = pd.pd_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'MA';
     </insert>
 
     <insert id="insertPushNotiRegByDeviceAndCustIdAndAppCode" parameterType="map">
@@ -195,7 +206,7 @@
         WHERE pd.device_id = #{deviceId}
         AND pd.cust_id = #{custId}
         AND ai.app_code = #{app_code}
-        AND SUBSTRING(pi.noti_code, 2, 1) = 'L';
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'AL';
     </insert>
 
 

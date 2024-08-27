@@ -89,6 +89,18 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
+    public String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception {
+        // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("app_code", appCode);
+
+        pushManageDAO.insertDefaultMarketingNotification(params);
+
+        return "[SUCCESS]";
+    }
+
+    @Override
     @Transactional
     public String processAfterLogin(String deviceId, String custId, String appCode) throws Exception {
         // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함
