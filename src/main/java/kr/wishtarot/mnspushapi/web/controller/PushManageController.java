@@ -69,6 +69,40 @@ public class PushManageController {
     }
 
     /**
+     * 디바이스 정보에 고객 id를 등록한다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param custId 고객 ID
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @PostMapping("/device/update-custid")
+    public ResponseEntity<String> updateCustIdByDeviceId(@RequestParam String deviceId,
+                                                    @RequestParam String custId){
+        try {
+            return ResponseEntity.ok(pushManageService.updateCustIdByDeviceId(deviceId, custId));
+        } catch (Exception e) {
+            return handleException(e, "Error in manageDevice");
+        }
+    }
+
+    /**
+     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 알림을 설정하는 요청을 처리합니다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param appCode 애플리케이션 코드
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @PostMapping("/notifications/reg-default")
+    public ResponseEntity<String> regDefaultNotification(@RequestParam String deviceId,
+                                                    @RequestParam String appCode){
+        try {
+            return ResponseEntity.ok(pushManageService.regDefaultNotification(deviceId, appCode));
+        } catch (Exception e) {
+            return handleException(e, "Error in manageDevice");
+        }
+    }
+
+    /**
      * 로그인 후 디바이스 정보에 고객 id를 등록하고 해당 디바이스에 대한 알림을 설정하는 요청을 처리합니다.
      *
      * @param deviceId 디바이스 ID

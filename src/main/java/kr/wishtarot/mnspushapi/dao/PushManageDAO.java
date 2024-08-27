@@ -70,6 +70,10 @@ public class PushManageDAO {
         return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdByDeviceId", pdv);
     }
 
+    public int insertDefaultNotification(Map<String, Object> params) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertDefaultNotification", params);
+    }
+
     public int insertPushNotiRegByDeviceAndCustIdAndAppCode(Map<String, Object> params) {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertPushNotiRegByDeviceAndCustIdAndAppCode", params);
     }

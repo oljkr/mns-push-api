@@ -29,6 +29,10 @@ public interface PushManageService {
      */
     String manageDevice(String mode, String deviceType, String deviceId, String custId) throws Exception;
 
+    String updateCustIdByDeviceId(String deviceId, String custId) throws Exception;
+
+    String regDefaultNotification(String deviceId, String appCode) throws Exception;
+
     String processAfterLogin(String deviceId, String custId, String appCode) throws Exception;
 
     String processAfterLogout(String deviceId, String custId, String appCode) throws Exception;

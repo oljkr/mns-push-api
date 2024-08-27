@@ -175,6 +175,17 @@
         WHERE device_id = #{deviceId}
     </update>
 
+    <insert id="insertDefaultNotification" parameterType="map">
+        INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
+        SELECT pd.pd_no, pi.push_info_no, NOW()
+        FROM push_device pd
+        JOIN push_info pi ON pd.pd_no = pd.pd_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 2, 1) = 'A';
+    </insert>
+
     <insert id="insertPushNotiRegByDeviceAndCustIdAndAppCode" parameterType="map">
         INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
         SELECT pd.pd_no, pi.push_info_no, NOW()
