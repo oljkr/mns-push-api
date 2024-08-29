@@ -81,7 +81,22 @@ public class PushManageController {
         try {
             return ResponseEntity.ok(pushManageService.updateCustIdByDeviceId(deviceId, custId));
         } catch (Exception e) {
-            return handleException(e, "Error in manageDevice");
+            return handleException(e, "Error in updateCustid");
+        }
+    }
+
+    /**
+     * 디바이스 정보에 고객 id를 삭제한다.
+     *
+     * @param deviceId 디바이스 ID
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @PostMapping("/device/delete-custid")
+    public ResponseEntity<String> deleteCustIdByDeviceId(@RequestParam String deviceId){
+        try {
+            return ResponseEntity.ok(pushManageService.deleteCustIdByDeviceId(deviceId));
+        } catch (Exception e) {
+            return handleException(e, "Error in deleteCustid");
         }
     }
 

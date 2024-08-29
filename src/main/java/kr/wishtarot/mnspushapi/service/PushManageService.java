@@ -31,6 +31,8 @@ public interface PushManageService {
 
     String updateCustIdByDeviceId(String deviceId, String custId) throws Exception;
 
+    String deleteCustIdByDeviceId(String deviceId) throws Exception;
+
     String regDefaultNotification(String deviceId, String appCode) throws Exception;
 
     String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception;

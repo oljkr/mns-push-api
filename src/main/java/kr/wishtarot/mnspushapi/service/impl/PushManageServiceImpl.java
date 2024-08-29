@@ -77,6 +77,15 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
+    public String deleteCustIdByDeviceId(String deviceId) throws Exception {
+        // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, null);
+        pushManageDAO.deleteCustIdByDeviceId(pushDevice);
+
+        return "[SUCCESS]";
+    }
+
+    @Override
     public String regDefaultNotification(String deviceId, String appCode) throws Exception {
         // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
         Map<String, Object> params = new HashMap<>();

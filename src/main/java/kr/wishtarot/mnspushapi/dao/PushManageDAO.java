@@ -74,6 +74,10 @@ public class PushManageDAO {
         return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdByDeviceId", pdv);
     }
 
+    public int deleteCustIdByDeviceId(PushDevice pdv) {
+        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deleteCustIdByDeviceId", pdv);
+    }
+
     public int insertDefaultNotification(Map<String, Object> params) {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertDefaultNotification", params);
     }

@@ -172,6 +172,14 @@
     <update id="updateCustIdByDeviceId" parameterType="PushDeviceVO">
         UPDATE push_device
         SET cust_id = #{custId}
+            , reg_dt = NOW()
+        WHERE device_id = #{deviceId}
+    </update>
+
+    <update id="deleteCustIdByDeviceId" parameterType="PushDeviceVO">
+        UPDATE push_device
+        SET cust_id = NULL,
+        reg_dt = NOW()
         WHERE device_id = #{deviceId}
     </update>
 
