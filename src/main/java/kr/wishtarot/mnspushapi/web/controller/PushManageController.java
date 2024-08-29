@@ -209,6 +209,20 @@ public class PushManageController {
     }
 
     /**
+     * 등록된 모든 알림 목록을 조회합니다.
+     *
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @GetMapping("/notifications/push-list")
+    public ResponseEntity<String> getAppPushInfoList(){
+        try {
+            return ResponseEntity.ok(pushManageService.getAppPushInfoList());
+        } catch (Exception e) {
+            return handleException(e, "Error in getAppPushInfoList");
+        }
+    }
+
+    /**
      * 사용자의 기기와 앱으로 등록된 Push 알림 목록을 조회합니다.
      *
      * @param deviceType 디바이스 타입 ('01': 안드로이드, '02': iOS)

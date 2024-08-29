@@ -234,6 +234,12 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
+    public String getAppPushInfoList() throws Exception {
+        List<AppPushInfo> appPushInfoList = pushManageDAO.getAppPushInfo();
+        return objectMapper.writeValueAsString(appPushInfoList);
+    }
+
+    @Override
     public String getPushNotiListAsJson(String appCode, String deviceType, String deviceId) throws Exception {
 //        PushDevice pushDevice = createPushDevice(deviceType, deviceId, appCode, null,null);
 //        List<PushNotiInfo> pushNotiInfoList = pushManageDAO.getPushNotiInfoList(pushDevice);

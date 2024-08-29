@@ -62,6 +62,7 @@ public interface PushManageService {
             String sendSuccessYn,
             String sendDt) throws Exception;
 
+    String getAppPushInfoList() throws Exception;
 
     /**
      * 앱에 등록된 Push 알림 목록을 JSON 형식으로 조회합니다.

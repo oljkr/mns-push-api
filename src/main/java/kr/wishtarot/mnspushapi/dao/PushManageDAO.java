@@ -54,6 +54,10 @@ public class PushManageDAO {
         return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.selectPushHistWithAssociations", criteria);
     }
 
+    public List<AppPushInfo> getAppPushInfo() {
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getAppPushInfo");
+    }
+
     public List<PushHist> getTargetResendList(PushHist phv) {
         return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getTargetResendList", phv);
     }

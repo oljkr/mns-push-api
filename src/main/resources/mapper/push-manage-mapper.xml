@@ -287,6 +287,18 @@
         ORDER BY ph.send_dt DESC
     </select>
 
+    <select id="getAppPushInfo" resultType="kr.wishtarot.mnspushapi.domain.AppPushInfo">
+        SELECT
+        ai.push_app_no,
+        ai.app_code,
+        ai.app_nm,
+        pi.push_info_no,
+        pi.noti_code,
+        pi.noti_nm
+        FROM app_info ai
+        INNER JOIN push_info pi ON ai.push_app_no = pi.push_app_no
+    </select>
+
     <update id="updateReceiveSuccess" parameterType="int">
         UPDATE TBFF_PUSH_HIST
         SET RECEIVE_SUCCES_YN = 'Y'
