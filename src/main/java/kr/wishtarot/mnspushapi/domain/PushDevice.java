@@ -30,5 +30,11 @@ public class PushDevice {
     @Size(max = 100)
     private String custId;
 
+    @Size(max = 1)
+    private String defaultNotiConsent;
+
+    @Size(max = 1)
+    private String marketingNotiConsent;
+
     private LocalDateTime regDt; // reg_dt 컬럼에 해당하는 필드 추가
 }

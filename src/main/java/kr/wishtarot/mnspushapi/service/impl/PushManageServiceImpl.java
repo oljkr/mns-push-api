@@ -39,24 +39,24 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     private Long getPdNoFromPushDevice(String deviceType, String deviceId, String custId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null, null, null);
         return pushManageDAO.getPdNoFromPushDevice(pushDevice);
     }
 
     private List<Long> getPdNoListFromPushDevice(String deviceType, String deviceId, String custId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null, null, null);
         return pushManageDAO.getPdNoListFromPushDevice(pushDevice);
     }
 
     private int countPushDeviceByCriteria(String deviceType, String deviceId, String custId) throws Exception {
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null, null, null);
         return pushManageDAO.countPushDeviceByCriteria(pushDevice);
     }
 
     @Override
     public String manageDevice(String mode, String deviceType, String deviceId, String custId) throws Exception {
         custId = normalize(custId);
-        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(deviceType, deviceId, custId, null, null, null);
 
         if ("reg".equalsIgnoreCase(mode)) {
             return handleDeviceRegistration(pushDevice);
@@ -70,7 +70,7 @@ public class PushManageServiceImpl implements PushManageService {
     @Override
     public String updateCustIdByDeviceId(String deviceId, String custId) throws Exception {
         // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함
-        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null, null, null);
         pushManageDAO.updateCustIdByDeviceId(pushDevice);
 
         return "[SUCCESS]";
@@ -79,7 +79,7 @@ public class PushManageServiceImpl implements PushManageService {
     @Override
     public String deleteCustIdByDeviceId(String deviceId) throws Exception {
         // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함
-        PushDevice pushDevice = createPushDevice(null, deviceId, null, null);
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, null, null, null);
         pushManageDAO.deleteCustIdByDeviceId(pushDevice);
 
         return "[SUCCESS]";
@@ -87,6 +87,10 @@ public class PushManageServiceImpl implements PushManageService {
 
     @Override
     public String regDefaultNotification(String deviceId, String appCode) throws Exception {
+        // push_device의 기본 알림 수신 동의 여부를 'y'로 update함
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, "y", null, null);
+        pushManageDAO.updateDefaultNotiContent(pushDevice);
+
         // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
         Map<String, Object> params = new HashMap<>();
         params.put("deviceId", deviceId);
@@ -99,6 +103,10 @@ public class PushManageServiceImpl implements PushManageService {
 
     @Override
     public String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception {
+        // push_device의 마케싱 알림 수선 동의 여부를 'y'로 update함
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, null, "y", null);
+        pushManageDAO.updateDefaultNotiContent(pushDevice);
+
         // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
         Map<String, Object> params = new HashMap<>();
         params.put("deviceId", deviceId);
@@ -113,7 +121,7 @@ public class PushManageServiceImpl implements PushManageService {
     @Transactional
     public String processAfterLogin(String deviceId, String custId, String appCode) throws Exception {
         // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함
-        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null, null, null);
         pushManageDAO.updateCustIdByDeviceId(pushDevice);
         // 알림등록) 로그인한 회원이 받을 수 있는 알림을 추가함
         Map<String, Object> params = new HashMap<>();
@@ -147,7 +155,7 @@ public class PushManageServiceImpl implements PushManageService {
         }
 
         // 기기삭제) 현재 토큰 값에 해당하는 custId를 삭제함
-        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null);
+        PushDevice pushDevice = createPushDevice(null, deviceId, custId, null, null, null);
         pushManageDAO.updateCustIdToNull(pushDevice);
 
         return "[SUCCESS]";
@@ -268,11 +276,13 @@ public class PushManageServiceImpl implements PushManageService {
         return (value == null) ? "" : value.trim();
     }
 
-    private PushDevice createPushDevice(String deviceType, String deviceId, String custId, LocalDateTime regDt) {
+    private PushDevice createPushDevice(String deviceType, String deviceId, String custId, String defaultNotiConsent, String marketingNotiConsent, LocalDateTime regDt) {
         return PushDevice.builder()
                 .deviceType(deviceType)
                 .deviceId(deviceId)
                 .custId(custId)
+                .defaultNotiConsent(defaultNotiConsent)
+                .marketingNotiConsent(marketingNotiConsent)
                 .regDt(regDt)
                 .build();
     }

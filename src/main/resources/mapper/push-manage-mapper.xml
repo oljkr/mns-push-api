@@ -176,6 +176,20 @@
         WHERE device_id = #{deviceId}
     </update>
 
+    <update id="updateDefaultNotiContent" parameterType="PushDeviceVO">
+        UPDATE push_device
+        SET default_noti_consent = #{defaultNotiConsent}
+        , reg_dt = NOW()
+        WHERE device_id = #{deviceId}
+    </update>
+
+    <update id="updateMarketingNotiContent" parameterType="PushDeviceVO">
+        UPDATE push_device
+        SET marketing_noti_consent = #{marketingNotiConsent}
+        , reg_dt = NOW()
+        WHERE device_id = #{deviceId}
+    </update>
+
     <update id="deleteCustIdByDeviceId" parameterType="PushDeviceVO">
         UPDATE push_device
         SET cust_id = NULL,

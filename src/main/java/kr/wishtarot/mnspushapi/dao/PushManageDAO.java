@@ -70,6 +70,14 @@ public class PushManageDAO {
         return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertOrUpdatePushDevice", pdv);
     }
 
+    public int updateDefaultNotiContent(PushDevice pdv) {
+        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateDefaultNotiContent", pdv);
+    }
+
+    public int updateMarketingNotiContent(PushDevice pdv) {
+        return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateMarketingNotiContent", pdv);
+    }
+
     public int updateCustIdByDeviceId(PushDevice pdv) {
         return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdByDeviceId", pdv);
     }
