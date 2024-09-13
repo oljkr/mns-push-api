@@ -105,7 +105,7 @@ public class PushManageServiceImpl implements PushManageService {
     public String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception {
         // push_device의 마케싱 알림 수선 동의 여부를 'y'로 update함
         PushDevice pushDevice = createPushDevice(null, deviceId, null, null, "y", null);
-        pushManageDAO.updateDefaultNotiContent(pushDevice);
+        pushManageDAO.updateMarketingNotiContent(pushDevice);
 
         // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
         Map<String, Object> params = new HashMap<>();
