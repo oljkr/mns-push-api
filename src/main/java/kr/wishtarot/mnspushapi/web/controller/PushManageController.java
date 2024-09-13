@@ -1,5 +1,6 @@
 package kr.wishtarot.mnspushapi.web.controller;
 
+import kr.wishtarot.mnspushapi.domain.PushDevice;
 import kr.wishtarot.mnspushapi.domain.PushHist;
 import kr.wishtarot.mnspushapi.service.impl.PushManageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -113,7 +114,7 @@ public class PushManageController {
         try {
             return ResponseEntity.ok(pushManageService.regDefaultNotification(deviceId, appCode));
         } catch (Exception e) {
-            return handleException(e, "Error in manageDevice");
+            return handleException(e, "Error in regDefaultNotification");
         }
     }
 
@@ -130,7 +131,23 @@ public class PushManageController {
         try {
             return ResponseEntity.ok(pushManageService.regDefaultMarketingNotification(deviceId, appCode));
         } catch (Exception e) {
-            return handleException(e, "Error in manageDevice");
+            return handleException(e, "Error in regDefaultMarketingNotification");
+        }
+    }
+
+
+    /**
+     * 등록된 모든 알림 목록을 조회합니다.
+     *
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @GetMapping("/notifications/noti-consent-info")
+    public ResponseEntity<?> getNotiConsentInfoList(@RequestParam String deviceId){
+        try {
+            Map<String, String> response = pushManageService.getNotiConsentInfoList(deviceId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return handleJsonException(e, "Error in getNotiConsentInfoList");
         }
     }
 
@@ -171,7 +188,6 @@ public class PushManageController {
             return handleException(e, "Error in manageDevice");
         }
     }
-
 
     /**
      * 전송된 Push 알림 이력 목록을 조회합니다.

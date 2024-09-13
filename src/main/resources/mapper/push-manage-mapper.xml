@@ -190,6 +190,12 @@
         WHERE device_id = #{deviceId}
     </update>
 
+    <select id="getNotiConsentInfoList" parameterType="pushDeviceVO" resultType="kr.wishtarot.mnspushapi.domain.PushDevice">
+        SELECT default_noti_consent, marketing_noti_consent
+        FROM push_device
+        WHERE DEVICE_ID = #{deviceId}
+    </select>
+
     <update id="deleteCustIdByDeviceId" parameterType="PushDeviceVO">
         UPDATE push_device
         SET cust_id = NULL,

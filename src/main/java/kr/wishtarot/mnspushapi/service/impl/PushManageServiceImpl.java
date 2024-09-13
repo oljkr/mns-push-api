@@ -118,6 +118,21 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
+    public Map<String, String> getNotiConsentInfoList(String deviceId) throws Exception {
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, null, null, null);
+
+        PushDevice notiInfo = pushManageDAO.getNotiConsentInfoList(pushDevice);
+        // Map을 사용하여 필요한 필드만 응답에 포함
+        Map<String, String> response = new HashMap<>();
+        response.put("defaultNotiConsent", notiInfo.getDefaultNotiConsent());
+        response.put("marketingNotiConsent", notiInfo.getMarketingNotiConsent());
+
+        return response;
+
+
+    }
+
+    @Override
     @Transactional
     public String processAfterLogin(String deviceId, String custId, String appCode) throws Exception {
         // 기기등록) 현재 토큰 값에 해당하는 데이터에 custId를 등록함

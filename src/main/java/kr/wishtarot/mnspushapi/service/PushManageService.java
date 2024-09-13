@@ -1,8 +1,10 @@
 package kr.wishtarot.mnspushapi.service;
 
+import kr.wishtarot.mnspushapi.domain.PushDevice;
 import kr.wishtarot.mnspushapi.domain.PushHist;
 
 import java.util.List;
+import java.util.Map;
 
 public interface PushManageService {
 
@@ -36,6 +38,8 @@ public interface PushManageService {
     String regDefaultNotification(String deviceId, String appCode) throws Exception;
 
     String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception;
+
+    Map<String, String> getNotiConsentInfoList(String deviceId) throws Exception;
 
     String processAfterLogin(String deviceId, String custId, String appCode) throws Exception;
 
