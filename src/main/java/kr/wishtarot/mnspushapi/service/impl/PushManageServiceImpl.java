@@ -102,6 +102,38 @@ public class PushManageServiceImpl implements PushManageService {
     }
 
     @Override
+    public String regUserDefaultNotification(String deviceId, String appCode) throws Exception {
+        // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("app_code", appCode);
+
+        pushManageDAO.insertALDefaultNotification(params);
+
+        return "[SUCCESS]";
+    }
+
+    @Override
+    public String delUserDefaultNotification(String deviceId, String appCode) throws Exception {
+        // 알림등록) 로그인 하지 않아도 받을 수 있는 기본 알림을 추가함
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("app_code", appCode);
+
+        List<Long> pnrNoList = pushManageDAO.getALPnrNoListByDeviceIdAndAppCode(params);
+
+        if (!pnrNoList.isEmpty()) {
+            // 삭제할 pnrNoList만 포함된 deleteParams 생성
+            Map<String, Object> deleteParams = new HashMap<>();
+            deleteParams.put("pnrNoList", pnrNoList);
+            pushManageDAO.deletePushNotiRegByPnrNoList(deleteParams);
+        }
+
+        return "[SUCCESS]";
+    }
+
+
+    @Override
     @Transactional
     public String updateDefaultNotification(String deviceId, String appCode, String defaultNotiConsent, String loginYn) throws Exception {
         // push_device의 기본 알림 수신 동의 여부를 defaultNotiConsent의 값으로 업데이트

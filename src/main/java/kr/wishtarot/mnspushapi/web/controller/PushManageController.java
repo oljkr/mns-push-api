@@ -118,6 +118,26 @@ public class PushManageController {
         }
     }
 
+    @PostMapping("/notifications/reg-user-default")
+    public ResponseEntity<String> regUserDefaultNotification(@RequestParam String deviceId,
+                                                         @RequestParam String appCode){
+        try {
+            return ResponseEntity.ok(pushManageService.regUserDefaultNotification(deviceId, appCode));
+        } catch (Exception e) {
+            return handleException(e, "Error in regUserDefaultNotification");
+        }
+    }
+
+    @PostMapping("/notifications/del-user-default")
+    public ResponseEntity<String> delUserDefaultNotification(@RequestParam String deviceId,
+                                                             @RequestParam String appCode){
+        try {
+            return ResponseEntity.ok(pushManageService.delUserDefaultNotification(deviceId, appCode));
+        } catch (Exception e) {
+            return handleException(e, "Error in regDefaultNotification");
+        }
+    }
+
     /**
      * 기기에서 알림 허용 후 비로그인 상태에서 마케팅용 알림을 설정하는 요청을 처리합니다.
      *
