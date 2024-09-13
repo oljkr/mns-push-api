@@ -39,6 +39,10 @@ public interface PushManageService {
 
     String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception;
 
+    String updateDefaultNotification(String deviceId, String appCode, String defaultNotiConsent, String loginYn) throws Exception;
+
+    String updateMarketingNotification(String deviceId, String appCode, String defaultNotiConsent, String loginYn) throws Exception;
+
     Map<String, String> getNotiConsentInfoList(String deviceId) throws Exception;
 
     String processAfterLogin(String deviceId, String custId, String appCode) throws Exception;

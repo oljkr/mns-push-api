@@ -96,10 +96,105 @@ public class PushManageServiceImpl implements PushManageService {
         params.put("deviceId", deviceId);
         params.put("app_code", appCode);
 
-        pushManageDAO.insertDefaultNotification(params);
+        pushManageDAO.insertAADefaultNotification(params);
 
         return "[SUCCESS]";
     }
+
+    @Override
+    @Transactional
+    public String updateDefaultNotification(String deviceId, String appCode, String defaultNotiConsent, String loginYn) throws Exception {
+        // push_device의 기본 알림 수신 동의 여부를 defaultNotiConsent의 값으로 업데이트
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, defaultNotiConsent, null, null);
+        pushManageDAO.updateDefaultNotiContent(pushDevice);
+
+        // 공통 파라미터 생성 (deviceId와 appCode는 공통으로 사용)
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("app_code", appCode);
+
+        if ("n".equalsIgnoreCase(defaultNotiConsent)) {
+            // 기본 알림 수신 거부 ('n')
+            if ("y".equalsIgnoreCase(loginYn)) {
+                // 로그인한 상태에서 기본 알림 수신을 거부한 경우
+                List<Long> pnrNoList = pushManageDAO.getALPnrNoListByDeviceIdAndAppCode(params);
+                if (!pnrNoList.isEmpty()) {
+                    // 삭제할 pnrNoList만 포함된 deleteParams 생성
+                    Map<String, Object> deleteParams = new HashMap<>();
+                    deleteParams.put("pnrNoList", pnrNoList);
+                    pushManageDAO.deletePushNotiRegByPnrNoList(deleteParams);
+                }
+            }
+
+            // 로그인 여부와 관계없이 처리할 비로그인 알림 수신 정보 삭제
+            List<Long> pnrNoList = pushManageDAO.getAAPnrNoListByDeviceIdAndAppCode(params);
+            if (!pnrNoList.isEmpty()) {
+                // 삭제할 pnrNoList만 포함된 deleteParams 생성
+                Map<String, Object> deleteParams = new HashMap<>();
+                deleteParams.put("pnrNoList", pnrNoList);
+                pushManageDAO.deletePushNotiRegByPnrNoList(deleteParams);
+            }
+        } else {
+            // 기본 알림 수신 동의 ('y')
+            if ("y".equalsIgnoreCase(loginYn)) {
+                // 로그인한 상태에서 기본 알림 수신에 동의한 경우
+                pushManageDAO.insertALDefaultNotification(params);
+            }
+
+            // 로그인하지 않은 사람도 받을 수 있는 기본 알림 수신 정보를 등록함
+            pushManageDAO.insertAADefaultNotification(params);
+        }
+        return "[SUCCESS]";
+    }
+
+    @Override
+    @Transactional
+    public String updateMarketingNotification(String deviceId, String appCode, String marketingNotiConsent, String loginYn) throws Exception {
+        // push_device의 마케팅 알림 수신 동의 여부를 defaultNotiConsent의 값으로 업데이트
+        PushDevice pushDevice = createPushDevice(null, deviceId, null, null, marketingNotiConsent, null);
+        pushManageDAO.updateMarketingNotiContent(pushDevice);
+
+        // 공통 파라미터 생성 (deviceId와 appCode는 공통으로 사용)
+        Map<String, Object> params = new HashMap<>();
+        params.put("deviceId", deviceId);
+        params.put("app_code", appCode);
+
+        if ("n".equalsIgnoreCase(marketingNotiConsent)) {
+            // 마케팅 알림 수신 거부 ('n')
+            // 마케팅은 'ML' 알림을 아직 사용한 것이 없으므로 구현하지 않음
+//            if ("y".equalsIgnoreCase(loginYn)) {
+//                // 로그인한 상태에서 마케팅 알림 수신을 거부한 경우
+//                List<Long> pnrNoList = pushManageDAO.getALPnrNoListByDeviceIdAndAppCode(params);
+//                if (!pnrNoList.isEmpty()) {
+//                    // 삭제할 pnrNoList만 포함된 deleteParams 생성
+//                    Map<String, Object> deleteParams = new HashMap<>();
+//                    deleteParams.put("pnrNoList", pnrNoList);
+//                    pushManageDAO.deletePushNotiRegByPnrNoList(deleteParams);
+//                }
+//            }
+
+            // 로그인 여부와 관계없이 처리할 비로그인 알림 수신 정보 삭제
+            List<Long> pnrNoList = pushManageDAO.getMAPnrNoListByDeviceIdAndAppCode(params);
+            if (!pnrNoList.isEmpty()) {
+                // 삭제할 pnrNoList만 포함된 deleteParams 생성
+                Map<String, Object> deleteParams = new HashMap<>();
+                deleteParams.put("pnrNoList", pnrNoList);
+                pushManageDAO.deletePushNotiRegByPnrNoList(deleteParams);
+            }
+        } else {
+            // 마케팅 알림 수신 동의 ('y')
+            // 마케팅은 'ML' 알림을 아직 사용한 것이 없으므로 구현하지 않음
+//            if ("y".equalsIgnoreCase(loginYn)) {
+//                // 로그인한 상태에서 마케팅 알림 수신에 동의한 경우
+//                pushManageDAO.insertALDefaultNotification(params);
+//            }
+
+            // 로그인하지 않은 사람도 받을 수 있는 마케팅 알림 수신 정보를 등록함
+            pushManageDAO.insertMAMarketingNotification(params);
+        }
+        return "[SUCCESS]";
+    }
+
 
     @Override
     public String regDefaultMarketingNotification(String deviceId, String appCode) throws Exception {
@@ -112,7 +207,7 @@ public class PushManageServiceImpl implements PushManageService {
         params.put("deviceId", deviceId);
         params.put("app_code", appCode);
 
-        pushManageDAO.insertDefaultMarketingNotification(params);
+        pushManageDAO.insertMAMarketingNotification(params);
 
         return "[SUCCESS]";
     }

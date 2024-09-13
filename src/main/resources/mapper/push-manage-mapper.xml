@@ -203,7 +203,7 @@
         WHERE device_id = #{deviceId}
     </update>
 
-    <insert id="insertDefaultNotification" parameterType="map">
+    <insert id="insertAADefaultNotification" parameterType="map">
         INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
         SELECT pd.pd_no, pi.push_info_no, NOW()
         FROM push_device pd
@@ -214,7 +214,18 @@
         AND SUBSTRING(pi.noti_code, 1, 2) = 'AA';
     </insert>
 
-    <insert id="insertDefaultMarketingNotification" parameterType="map">
+    <insert id="insertALDefaultNotification" parameterType="map">
+        INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
+        SELECT pd.pd_no, pi.push_info_no, NOW()
+        FROM push_device pd
+        JOIN push_info pi ON pd.pd_no = pd.pd_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'AL';
+    </insert>
+
+    <insert id="insertMAMarketingNotification" parameterType="map">
         INSERT INTO push_noti_reg (pd_no, push_info_no, reg_dt)
         SELECT pd.pd_no, pi.push_info_no, NOW()
         FROM push_device pd
@@ -237,6 +248,38 @@
         AND SUBSTRING(pi.noti_code, 1, 2) = 'AL';
     </insert>
 
+    <select id="getAAPnrNoListByDeviceIdAndAppCode" resultType="long" parameterType="map">
+        SELECT pnr.pnr_no
+        FROM push_noti_reg pnr
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        JOIN push_info pi ON pnr.push_info_no = pi.push_info_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'AA';
+    </select>
+
+    <select id="getALPnrNoListByDeviceIdAndAppCode" resultType="long" parameterType="map">
+        SELECT pnr.pnr_no
+        FROM push_noti_reg pnr
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        JOIN push_info pi ON pnr.push_info_no = pi.push_info_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'AL';
+    </select>
+
+    <select id="getMAPnrNoListByDeviceIdAndAppCode" resultType="long" parameterType="map">
+        SELECT pnr.pnr_no
+        FROM push_noti_reg pnr
+        JOIN push_device pd ON pnr.pd_no = pd.pd_no
+        JOIN push_info pi ON pnr.push_info_no = pi.push_info_no
+        JOIN app_info ai ON pi.push_app_no = ai.push_app_no
+        WHERE pd.device_id = #{deviceId}
+        AND ai.app_code = #{app_code}
+        AND SUBSTRING(pi.noti_code, 1, 2) = 'MA';
+    </select>
 
     <delete id="deletePushDevice" parameterType="pushDeviceVO">
         DELETE
@@ -256,6 +299,7 @@
             AND pd.cust_id = #{custId}        <!-- pushDeviceVO의 custId 사용 (필요한 경우) -->
         </if>
     </delete>
+
 
     <insert id="insertPushNotiReg" parameterType="pushNotiRegVO">
         INSERT INTO push_noti_reg

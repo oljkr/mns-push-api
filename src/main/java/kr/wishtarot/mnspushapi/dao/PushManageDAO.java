@@ -2,6 +2,7 @@ package kr.wishtarot.mnspushapi.dao;
 
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 import kr.wishtarot.mnspushapi.domain.*;
 import org.apache.ibatis.session.SqlSession;
@@ -90,12 +91,16 @@ public class PushManageDAO {
         return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.deleteCustIdByDeviceId", pdv);
     }
 
-    public int insertDefaultNotification(Map<String, Object> params) {
-        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertDefaultNotification", params);
+    public int insertAADefaultNotification(Map<String, Object> params) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertAADefaultNotification", params);
     }
 
-    public int insertDefaultMarketingNotification(Map<String, Object> params) {
-        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertDefaultMarketingNotification", params);
+    public int insertALDefaultNotification(Map<String, Object> params) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertALDefaultNotification", params);
+    }
+
+    public int insertMAMarketingNotification(Map<String, Object> params) {
+        return sqlSession.insert("kr.wishtarot.mnspushapi.mapper.PushManageMapper.insertMAMarketingNotification", params);
     }
 
     public int insertPushNotiRegByDeviceAndCustIdAndAppCode(Map<String, Object> params) {
@@ -112,6 +117,21 @@ public class PushManageDAO {
 
     public int updateCustIdToNull(PushDevice pdv) {
         return sqlSession.update("kr.wishtarot.mnspushapi.mapper.PushManageMapper.updateCustIdToNull", pdv);
+    }
+
+    // AA로 시작하는 pnr_no 목록을 조회하는 메서드
+    public List<Long> getAAPnrNoListByDeviceIdAndAppCode(Map<String, Object> params) {
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getAAPnrNoListByDeviceIdAndAppCode", params);
+    }
+
+    // AL로 시작하는 pnr_no 목록을 조회하는 메서드
+    public List<Long> getALPnrNoListByDeviceIdAndAppCode(Map<String, Object> params) {
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getALPnrNoListByDeviceIdAndAppCode", params);
+    }
+
+    // MA로 시작하는 pnr_no 목록을 조회하는 메서드
+    public List<Long> getMAPnrNoListByDeviceIdAndAppCode(Map<String, Object> params) {
+        return sqlSession.selectList("kr.wishtarot.mnspushapi.mapper.PushManageMapper.getMAPnrNoListByDeviceIdAndAppCode", params);
     }
 
     public int deletePushDevice(PushDevice pdv) {

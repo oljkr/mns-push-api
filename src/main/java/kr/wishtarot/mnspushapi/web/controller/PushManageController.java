@@ -125,9 +125,9 @@ public class PushManageController {
      * @param appCode 애플리케이션 코드
      * @return HTTP 응답 상태와 결과 메시지
      */
-    @PostMapping("/notifications/reg-default-marketing")
+    @PostMapping("/notifications/reg-marketing")
     public ResponseEntity<String> regDefaultMarketingNotification(@RequestParam String deviceId,
-                                                         @RequestParam String appCode){
+                                                                  @RequestParam String appCode){
         try {
             return ResponseEntity.ok(pushManageService.regDefaultMarketingNotification(deviceId, appCode));
         } catch (Exception e) {
@@ -135,6 +135,36 @@ public class PushManageController {
         }
     }
 
+    /**
+     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 알림을 설정하는 요청을 처리합니다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param appCode 애플리케이션 코드
+     * @return HTTP 응답 상태와 결과 메시지
+     */
+    @PostMapping("/notifications/update-default")
+    public ResponseEntity<String> updateDefaultNotification(@RequestParam String deviceId,
+                                                            @RequestParam String appCode,
+                                                            @RequestParam String defaultNotiConsent,
+                                                            @RequestParam String loginYn){
+        try {
+            return ResponseEntity.ok(pushManageService.updateDefaultNotification(deviceId, appCode, defaultNotiConsent, loginYn));
+        } catch (Exception e) {
+            return handleException(e, "Error in updateDefaultNotification");
+        }
+    }
+
+    @PostMapping("/notifications/update-marketing")
+    public ResponseEntity<String> updateMarketingNotification(@RequestParam String deviceId,
+                                                            @RequestParam String appCode,
+                                                            @RequestParam String marketingNotiConsent,
+                                                            @RequestParam String loginYn){
+        try {
+            return ResponseEntity.ok(pushManageService.updateMarketingNotification(deviceId, appCode, marketingNotiConsent, loginYn));
+        } catch (Exception e) {
+            return handleException(e, "Error in updateMarketingNotification");
+        }
+    }
 
     /**
      * 등록된 모든 알림 목록을 조회합니다.
