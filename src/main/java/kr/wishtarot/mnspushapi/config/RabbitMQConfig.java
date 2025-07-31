@@ -28,8 +28,8 @@ public class RabbitMQConfig {
 //        return new Queue(SERVICE_QUEUE, true);
 //    }
 
-    public static final String TAROT_ADMIN_QUEUE = "tarot.admin";
-    public static final String TAROT_AUTO_QUEUE = "tarot.auto";
+    public static final String TAROT_ADMIN_QUEUE = "tarotAdmin";
+    public static final String TAROT_AUTO_QUEUE = "tarotAuto";
 
     @Bean
     public Queue tarotAdminQueue() {
