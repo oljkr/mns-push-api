@@ -32,9 +32,9 @@ public class MqProduceServiceImpl implements MqProduceService {
         // queueName을 요청에 따라 설정
         String queueName;
         if ("admin".equalsIgnoreCase(request.getQueueName())) {
-            queueName = RabbitMQConfig.ADMIN_QUEUE;
-        } else if ("service".equalsIgnoreCase(request.getQueueName())) {
-            queueName = RabbitMQConfig.SERVICE_QUEUE;
+            queueName = RabbitMQConfig.TAROT_ADMIN_QUEUE;
+        } else if ("auto".equalsIgnoreCase(request.getQueueName())) {
+            queueName = RabbitMQConfig.TAROT_AUTO_QUEUE;
         } else {
             throw new IllegalArgumentException("Invalid queue name: " + request.getQueueName());
         }

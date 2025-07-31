@@ -102,7 +102,7 @@ public class PushManageController {
     }
 
     /**
-     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 알림을 설정하는 요청을 처리합니다.
+     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 기본 알림을 y/n으로 등록합니다.
      *
      * @param deviceId 디바이스 ID
      * @param appCode 애플리케이션 코드
@@ -118,6 +118,13 @@ public class PushManageController {
         }
     }
 
+    /**
+     * 기기에서 알림 허용 후 로그인 상태에서 받을 수 있는 기본 알림을 y/n으로 등록합니다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param appCode 애플리케이션 코드
+     * @return HTTP 응답 상태와 결과 메시지
+     */
     @PostMapping("/notifications/reg-user-default")
     public ResponseEntity<String> regUserDefaultNotification(@RequestParam String deviceId,
                                                          @RequestParam String appCode){
@@ -128,6 +135,13 @@ public class PushManageController {
         }
     }
 
+    /**
+     * 기기 id로 설정된 로그인 상태에서 받을 수 있는 기본 알림 목록을 삭제합니다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param appCode 애플리케이션 코드
+     * @return HTTP 응답 상태와 결과 메시지
+     */
     @PostMapping("/notifications/del-user-default")
     public ResponseEntity<String> delUserDefaultNotification(@RequestParam String deviceId,
                                                              @RequestParam String appCode){
@@ -139,7 +153,7 @@ public class PushManageController {
     }
 
     /**
-     * 기기에서 알림 허용 후 비로그인 상태에서 마케팅용 알림을 설정하는 요청을 처리합니다.
+     * 기기에서 알림 허용 후 비로그인 상태에서 마케팅용 알림을 y/n으로 등록합니다.
      *
      * @param deviceId 디바이스 ID
      * @param appCode 애플리케이션 코드
@@ -156,7 +170,8 @@ public class PushManageController {
     }
 
     /**
-     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 알림을 설정하는 요청을 처리합니다.
+     * 기기에서 알림 허용 후 받을 수 있는 기본 알림(비로그인 상태에서는 AA만 설정, 로그인 상태에서는 AL까지도 설정
+     * - AA(비로그인 상태에서도 받음),AL(로그인 상태에서 받음))을 y/n으로 업데이트 합니다.
      *
      * @param deviceId 디바이스 ID
      * @param appCode 애플리케이션 코드
@@ -174,6 +189,13 @@ public class PushManageController {
         }
     }
 
+    /**
+     * 기기에서 알림 허용 후 비로그인 상태에도 받을 수 있는 마케팅용 알림을 y/n으로 업데이트 합니다.
+     *
+     * @param deviceId 디바이스 ID
+     * @param appCode 애플리케이션 코드
+     * @return HTTP 응답 상태와 결과 메시지
+     */
     @PostMapping("/notifications/update-marketing")
     public ResponseEntity<String> updateMarketingNotification(@RequestParam String deviceId,
                                                             @RequestParam String appCode,
@@ -187,7 +209,7 @@ public class PushManageController {
     }
 
     /**
-     * 등록된 모든 알림 목록을 조회합니다.
+     * 특정 기기 id에 대해서 기본 알림 수신 동의와 마케팅 알림 수신 동의의 y,n 값을 리턴합니다.
      *
      * @return HTTP 응답 상태와 결과 메시지
      */
@@ -202,7 +224,7 @@ public class PushManageController {
     }
 
     /**
-     * 로그인 후 디바이스 정보에 고객 id를 등록하고 해당 디바이스에 대한 알림을 설정하는 요청을 처리합니다.
+     * 로그인 후 디바이스 정보에 고객 id를 등록하고 해당 디바이스에 대한 AL 알림을 설정하는 요청을 처리합니다.
      *
      * @param deviceId 디바이스 ID
      * @param custId 고객 ID
@@ -221,7 +243,7 @@ public class PushManageController {
     }
 
     /**
-     * 로그아웃 후 디바이스 정보에 고객 id를 삭제하고 해당 디바이스에 대한 알림을 삭제하는 요청을 처리합니다.
+     * 로그아웃 후 해당 디바이스에 대한 AL 알림을 삭제하고 디바이스 정보에 고객 id를 삭제하고 하는 요청을 처리합니다.
      *
      * @param deviceId 디바이스 ID
      * @param custId 고객 ID

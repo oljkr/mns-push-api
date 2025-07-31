@@ -13,19 +13,34 @@ import org.springframework.amqp.core.MessageDeliveryMode;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String ADMIN_QUEUE = "adminQueue";
-    public static final String SERVICE_QUEUE = "serviceQueue";
+//    public static final String ADMIN_QUEUE = "adminQueue";
+//    public static final String SERVICE_QUEUE = "serviceQueue";
+//
+//    @Bean
+//    public Queue adminQueue() {
+//        // 큐를 내구성 있게 설정 (durable: true)
+//        return new Queue(ADMIN_QUEUE, true);
+//    }
+//
+//    @Bean
+//    public Queue serviceQueue() {
+//        // 큐를 내구성 있게 설정 (durable: true)
+//        return new Queue(SERVICE_QUEUE, true);
+//    }
+
+    public static final String TAROT_ADMIN_QUEUE = "tarot.admin";
+    public static final String TAROT_AUTO_QUEUE = "tarot.auto";
 
     @Bean
-    public Queue adminQueue() {
+    public Queue tarotAdminQueue() {
         // 큐를 내구성 있게 설정 (durable: true)
-        return new Queue(ADMIN_QUEUE, true);
+        return new Queue(TAROT_ADMIN_QUEUE, true);
     }
 
     @Bean
-    public Queue serviceQueue() {
+    public Queue tarotAutoQueue() {
         // 큐를 내구성 있게 설정 (durable: true)
-        return new Queue(SERVICE_QUEUE, true);
+        return new Queue(TAROT_AUTO_QUEUE, true);
     }
 
     @Bean
